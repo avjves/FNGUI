@@ -16,14 +16,34 @@ module ApplicationHelper
         args[:document][args[:field]].gsub!('<', ' ')
     end
 
-    def generate_to_tsv_link
-        args = @document_list[0].solr_response["responseHeader"]["params"]
-	found = @document_list[0].solr_response["response"]["numFound"]
-	args["rows"] = found
-	text = "analysis/to_tsv?"
-	args.each do |key, value|
-		text.concat("#{key}=#{value}&".gsub('"', ''))
+    def generate_links
+	if @document_list[0] != nil
+        	args = @document_list[0].solr_response["responseHeader"]["params"]
+		if @search_state.params["page"] != nil
+			page = Integer(@search_state.params["page"])
+		else
+			page = 1
+		end
+		if @search_state.params["per_page"] != nil
+			per_page = Integer(@search_state.params["per_page"])
+		else
+			per_page = 10
+		end
+		args["start"] = (page-1) * per_page
+		args["wt"] = "json"
+		text = "analysis/to_tsv?"
+		analyze = "analysis/?"
+		arguments = ""
+		args.each do |key, value|
+			arguments.concat("#{key}=#{value}&".gsub('"', "%22").gsub(" ", "%20"))
+		end
+		text.concat(arguments)
+		analyze.concat(arguments)
+		tsv = "<a class=\"btn btn-sm btn-text\" id=\"startOverLink\" href=\"#{text}\">Query to TSV</a>".html_safe
+    		analyze = "<a class=\"btn btn-sm btn-text\" id=\"startOverLink\" href=\"#{analyze}\">Analyze</a>".html_safe
+		return tsv + analyze
+	else
+		return "" 
 	end
-	return "<a href=\"#{text}\">TO TSV </a>".html_safe
-     end
+    end
 end

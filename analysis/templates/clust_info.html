@@ -1,0 +1,81 @@
+<html>
+	<head>
+		<title> Analysing Cluster / Query</title>
+	{% include 'scripts.html' %}
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">Finnish news</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{ pageurls.home }}">Home</a></li>
+						<li><a href="{{ pageurls.hf }}">Hit Frequency</a></li>
+						<li><a href="{{ pageurls.cf }}">Cluster Frequency</a></li>
+						<li class="active"><a href="#">Cluster Info</a></li>
+					</ul>
+				</div>
+			</nav>
+		<div class="container">
+		</div>
+		<div class="col-sm-12">
+			<div id="chartdiv">
+				<canvas id="chart"></canvas>
+			</div>
+		</div>
+		
+		<script>
+			labels = {{data.labels}}
+			var ctx = document.getElementById("chart").getContext("2d");
+			var lineChart = new Chart(ctx, {
+				type: "bar",
+				data: {
+					labels: labels,
+					datasets: [{
+						label: "Counts",
+						data: {{data.counts}},
+						backgroundColor: "rgba(255, 0, 50, 0.5)",
+						hidden: false
+							},
+							{
+						label: "Lengths",
+						data: {{data.lengths}},
+						backgroundColor: "rgba(55, 0, 255, 0.5)",
+						hidden: true
+							},
+							{
+						label: "Span",
+						data: {{data.span}},
+						backgroundColor: "rgba(50, 255, 50, 0.5)",
+						hidden: true
+							},
+							{
+						label: "Max gap",
+						data: {{data.max_reprint}},
+						backgroundColor: "rgba(255, 255, 0, 0.5)",
+						hidden: true
+							}]
+					},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true,
+					scales: {
+						yAxes: [{
+							ticks: {
+								beginAtZero: true
+							}
+						}]
+					},
+					onClick: function(mouseEvent, chart) {
+							if (chart[0] != null) {
+								label = labels[chart[0]._index]
+								window.location.href="http://evex.utu.fi/fin_news/?f[cluster_id][]=" + label;
+							}
+					}
+				}
+		});
+		
+		</script>
+	</body>
+</html>

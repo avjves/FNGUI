@@ -109,7 +109,7 @@ class CatalogController < ApplicationController
     config.add_index_field 'count', label: "Count"
     config.add_index_field 'occyear', label: "Occurance year"
     config.add_index_field 'avglength', label: "Average length"
-    config.add_index_field "max_reprint_time", label: "Max reprint time (yrs)"
+    config.add_index_field "max_reprint_time", label: "Max gap (yrs)"
     config.add_index_field 'span', label: "Maximum span (yrs)"
     config.add_index_field 'filename', label: "Filename"
     config.add_index_field 'date', label: "Date"

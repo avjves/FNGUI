@@ -1,0 +1,97 @@
+<!doctype html>
+	<html>
+		<head>
+			<title> Analysing Cluster / Query</title>
+		{% include "scripts.html" %}
+		</head>
+		<body>
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">Finnish news</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{pageurls.home}}">Home</a></li>
+						<li class="active"><a href="#">Hit Frequency</a></li>
+						<li><a href="{{pageurls.cf}}">Cluster Frequency</a></li>
+						<li><a href="{{pageurls.ci}}">Cluster Info</a></li>
+					</ul>
+				</div>
+			</nav>
+
+			<div class="container">
+
+			</div>
+			<div class="row">
+				<div class="col-sm-3">
+					<div class="dropdown">
+						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="margin-left:75px">
+							Time scale
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li><a href="#" id="dropdown-year">Year</a></li>
+							<li><a href="#" id="dropdown-month">Month</a></li>
+							<li><a href="#" id="dropdown-day">Day</a></li>
+						</ul>
+					</div>
+				</div>
+				
+				<div class="col-sm-9">
+					
+				</div>
+			</div>
+			<div class="row">
+			<div class="col-sm-12">
+				<div id="chartdiv" style="margin-left:20px;margin-right:20px">
+					<canvas id="chart"></canvas>
+				</div>
+			</div>
+
+			
+			</div>
+			<script>
+				function generateLineChart(ctx, labels, data, label) {
+					if (typeof lineChart == "object") {
+						lineChart.destroy()
+					}
+					lineChart = new Chart(ctx, {
+					type: "bar",
+					data: {
+						labels: labels,
+						datasets: [{
+							label: label,
+							data: data,
+							lineTension: 0,
+							backgroundColor: "rgba(12, 25, 150, 0.5)"
+								}]
+						},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						scales: {
+							yAxes: [{
+								ticks: {
+									beginAtZero: true
+								}
+							}]
+						}
+					}
+				});
+				}
+				
+				var ctx = document.getElementById("chart").getContext("2d");
+				var lineChart;
+
+				$("#dropdown-year").click(function(e) {generateLineChart(ctx, {{data.year_labels|safe}}, {{data.year_data|safe}}, "Year");e.preventDefault();});				
+				$("#dropdown-month").click(function(e) {generateLineChart(ctx, {{data.month_labels|safe}}, {{data.month_data|safe}}, "Month");e.preventDefault();});
+				$("#dropdown-day").click(function(e) {generateLineChart(ctx, {{data.day_labels|safe}}, {{data.day_data|safe}}, "Day");e.preventDefault();});
+
+				generateLineChart(ctx, {{data.year_labels|safe}}, {{data.year_data|safe}}, "Year")
+
+				
+				
+			</script>
+			</div>
+		</body>	
+	</html>

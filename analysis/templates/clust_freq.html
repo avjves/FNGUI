@@ -1,0 +1,179 @@
+<!doctype html>
+	<html>
+		<head>
+			<title> Analysing Cluster / Query</title>
+		{% include "scripts.html" %}
+		</head>
+		<body>
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">Finnish news</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{pageurls.home}}">Home</a></li>
+						<li><a href="{{pageurls.hf}}">Hit Frequency</a></li>
+						<li class="active"><a href="{{pageurls.cf}}">Cluster Frequency</a></li>
+						<li><a href="{{pageurls.ci}}">Cluster Info</a></li>
+					</ul>
+				</div>
+			</nav>
+
+			<div class="container">
+				<div class="row">
+					<div class="row-sm-12">
+						<div class="cluster_range">
+							<div>
+								<label id="clustCount"></label>
+								<br />
+							</div>
+							<div >
+								<label>Cluster start:</label>							
+							</div>
+							<div >
+								<input class="form-control" type="number" placeholder=0 id="cluster-start"/>
+							</div>
+							<div >
+								<label>Cluster end:</label>							
+							</div>
+							<div >
+								<input class="form-control" type="number" placeholder=100 id="cluster-end"/>
+							</div>
+							<div >
+	
+							</div>
+						</div>
+					</div>	
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-1">
+						<button class="btn btn-primary" type="button" id="setRangeButton">
+									Set range
+						</button>
+					</div>
+					<div class="col-sm-1">
+						<div class="dropdown">
+							<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="margin-left:15px;">
+								Time scale
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" style="margin-left:15px">
+								<li><a href="#" id="dropdown-year">Year</a></li>
+								<li><a href="#" id="dropdown-month">Month</a></li>
+								<li><a href="#" id="dropdown-day">Day</a></li>
+							</ul>
+						</div>
+					</div>
+					<br />
+					<br />
+				</div>
+				<div class="row">
+				<div class="col-sm-12">
+					<div id="chartdiv">
+						<canvas id="chart"></canvas>
+					</div>
+				</div>
+				</div>
+			</div>
+			
+			<script>
+				function getRandomColor() {
+					var letters = '0123456789ABCDEF';
+					var color = '#';
+					for (var i = 0; i < 6; i++) {
+						color += letters[Math.floor(Math.random() * 16)];
+					}
+					return color;
+					}
+				
+				function formatData(data) {
+					datasets = []
+					for(var i = 0; i < data.clusters.length; i++) {
+						if (i < cluster_start) {
+							continue
+						}
+						if (i > cluster_end) {
+							break
+						}
+						cluster = data.clusters[i];
+						label = cluster.label;
+						cluster_data = cluster.data;
+						backgroundColor = "rgba(12, 25, 150, 0.5)";
+						dataset = {"label": label, "data": cluster_data,"backgroundColor": backgroundColor};
+						datasets.push(dataset);
+					}
+					return {"labels":data.labels, "datasets":datasets}
+				}
+				
+				function setClusterCount(data) {
+					
+					document.getElementById("clustCount").innerHTML = "Clusters in total: " + data.clusters.length;
+					
+				}
+				
+				
+				function generateLineChart(ctx, data) {
+					if (typeof lineChart == "object") {
+						lineChart.destroy()
+					}
+					setClusterCount(data);
+					formatted_data = formatData(data);
+					labels = formatted_data.labels;
+					datasets = formatted_data.datasets;
+					lineChart = new Chart(ctx, {
+					type: "bar",
+					data: {
+						labels: labels,
+						datasets: datasets
+						},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						onClick: function(mouseEvent, chart) {
+							label = this.data.datasets[chart[0]._datasetIndex]["label"];
+							window.location.href="http://evex.utu.fi/fin_news/?f[cluster_id][]=" + label;
+
+						},
+						scales: {
+							yAxes: [{
+								ticks: {
+									beginAtZero: true
+								}
+							}],
+							xAxes: [{
+									barThickness: 7.5
+							}
+							]
+						},
+						legend: {
+							display: false
+						}
+					}
+				});
+				}
+				var data_year = {{data.year|safe}}
+				var data_month = {{data.month|safe}}
+				var data_day = {{data.day|safe}}
+				var cluster_start = 0;
+				var cluster_end = 100;
+				var ctx = document.getElementById("chart").getContext("2d");
+				var lineChart;
+				var currData = data_year;
+				var currLabel
+				$("#dropdown-year").click(function(e) {generateLineChart(ctx, data_year); currData = data_year;e.preventDefault();});				
+				$("#dropdown-month").click(function(e) {generateLineChart(ctx, data_month); currData = data_month; e.preventDefault();});
+				$("#dropdown-day").click(function(e) {generateLineChart(ctx, data_day); currData = data_day; e.preventDefault();});
+				$("#setRangeButton").click(function(e) {
+					cluster_start = $("#cluster-start").val()
+					cluster_end = $("#cluster-end").val()
+					generateLineChart(ctx, currData)
+				})
+				generateLineChart(ctx, {{data.year|safe}})
+
+				
+				
+			</script>
+			</div>
+		</body>	
+	</html>
