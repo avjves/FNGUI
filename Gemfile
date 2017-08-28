@@ -33,6 +33,7 @@ gem 'jbuilder', '~> 2.5'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'blacklight', "~> 6.0"
+gem 'bootswatch-rails'
 gem 'blacklight_range_limit'
 
 # Use Capistrano for deployment
