@@ -21,61 +21,70 @@
 		</div>
 		<div class="col-sm-12">
 			<div id="chartdiv">
-				<canvas id="chart"></canvas>
+				<canvas id="chartdiv"></canvas>
 			</div>
 		</div>
-		
+		<div id="loading" class="spinner"/>
 		<script>
-			labels = {{data.labels}}
-			var ctx = document.getElementById("chart").getContext("2d");
-			var lineChart = new Chart(ctx, {
-				type: "bar",
-				data: {
-					labels: labels,
-					datasets: [{
-						label: "Counts",
-						data: {{data.counts}},
-						backgroundColor: "rgba(255, 0, 50, 0.5)",
-						hidden: false
-							},
-							{
-						label: "Lengths",
-						data: {{data.lengths}},
-						backgroundColor: "rgba(55, 0, 255, 0.5)",
-						hidden: true
-							},
-							{
-						label: "Span",
-						data: {{data.span}},
-						backgroundColor: "rgba(50, 255, 50, 0.5)",
-						hidden: true
-							},
-							{
-						label: "Max gap",
-						data: {{data.max_reprint}},
-						backgroundColor: "rgba(255, 255, 0, 0.5)",
-						hidden: true
-							}]
-					},
-				options: {
-					responsive: true,
-					maintainAspectRatio: true,
-					scales: {
-						yAxes: [{
-							ticks: {
-								beginAtZero: true
+		function generateChart(data) {
+			$("#loading").attr("class", "");
+			Highcharts.chart("chartdiv", {
+				chart: {
+					type: "column",
+					zoomType: "x"
+				},
+				legend: {
+					enabled: true
+				},
+				title: {
+					text: "Cluster info"
+				},
+				plotOptions: {
+
+					series: {
+						stickyTracking: false,
+						point: {
+							events: {
+								click: function() {
+								window.location.href="http://evex.utu.fi/fin_news/?f[cluster_id][]=" + this.category;
+								}
 							}
-						}]
-					},
-					onClick: function(mouseEvent, chart) {
-							if (chart[0] != null) {
-								label = labels[chart[0]._index]
-								window.location.href="http://evex.utu.fi/fin_news/?f[cluster_id][]=" + label;
-							}
+						}
 					}
-				}
-		});
-		
+				},
+				tooltip: {
+					snap:0,
+					shared: false,
+					crosshairs: false
+				},
+				xAxis: {
+					categories: data.labels
+				},
+				series: [{
+						name: "Counts",
+						data: data.counts
+					},
+					{
+						name: "Lengths",
+						data: data.lengths
+					},
+					{
+						name: "Spans",
+						data: data.spans
+					},
+					{
+						name: "Gaps",
+						data: data.gaps
+					}]
+			});
+		}
+		url = "{{ pageurls.info_data | safe}}"
+		$.getJSON(url, function(data) {
+			generateChart(data)});
+
+			
 		</script>
+		
+	
 	</body>
 </html>

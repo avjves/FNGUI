@@ -32,7 +32,6 @@
 						<ul class="dropdown-menu">
 							<li><a href="#" id="dropdown-year">Year</a></li>
 							<li><a href="#" id="dropdown-month">Month</a></li>
-							<li><a href="#" id="dropdown-day">Day</a></li>
 						</ul>
 					</div>
 				</div>
@@ -47,51 +46,64 @@
 					<canvas id="chart"></canvas>
 				</div>
 			</div>
+			<div id="loading" class="spinner"/>
+		<script>
+		function generateNewUrl() {
+			base = "{{ pageurls.hf_data | safe }}"
+			base += "&scale=" + currScale;
+			return base
+		}
+		
+		function generateChart(data) {
+			$("#loading").attr("class", "");
+			Highcharts.chart("chartdiv", {
+				chart: {
+					type: "column",
+					zoomType: "x"
+				},
+				legend: {
+					enabled: false
+				},
+				title: {
+					text: "Hit Frequency"
+				},
+				xAxis: {
+					categories: data.labels
+				},
+				tooltip: {
+					snap:0,
+					shared: false,
+					crosshairs: false
+				},
+				series: [{
+					name: "Hits",
+					data: data.data
+				}]
+			});
+		}
+		var currScale = "year";
+		url = generateNewUrl()
+		$.getJSON(url, function(data) {
+			alert(data.data)
+			generateChart(data)});
 
-			
-			</div>
-			<script>
-				function generateLineChart(ctx, labels, data, label) {
-					if (typeof lineChart == "object") {
-						lineChart.destroy()
-					}
-					lineChart = new Chart(ctx, {
-					type: "bar",
-					data: {
-						labels: labels,
-						datasets: [{
-							label: label,
-							data: data,
-							lineTension: 0,
-							backgroundColor: "rgba(12, 25, 150, 0.5)"
-								}]
-						},
-					options: {
-						responsive: true,
-						maintainAspectRatio: true,
-						scales: {
-							yAxes: [{
-								ticks: {
-									beginAtZero: true
-								}
-							}]
-						}
-					}
-				});
-				}
-				
-				var ctx = document.getElementById("chart").getContext("2d");
-				var lineChart;
+		$("#dropdown-year").click(function(e) {
+			currScale = "year"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
+				generateChart(data);
+			});});
+		
+		$("#dropdown-month").click(function(e) {
+			currScale = "month"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
 
-				$("#dropdown-year").click(function(e) {generateLineChart(ctx, {{data.year_labels|safe}}, {{data.year_data|safe}}, "Year");e.preventDefault();});				
-				$("#dropdown-month").click(function(e) {generateLineChart(ctx, {{data.month_labels|safe}}, {{data.month_data|safe}}, "Month");e.preventDefault();});
-				$("#dropdown-day").click(function(e) {generateLineChart(ctx, {{data.day_labels|safe}}, {{data.day_data|safe}}, "Day");e.preventDefault();});
+				generateChart(data);
+			});});		
+		</script>
 
-				generateLineChart(ctx, {{data.year_labels|safe}}, {{data.year_data|safe}}, "Year")
-
-				
-				
-			</script>
-			</div>
 		</body>	
 	</html>

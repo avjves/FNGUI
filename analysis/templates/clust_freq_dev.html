@@ -19,9 +19,9 @@
 				</div>
 			</nav>
 
-			<div class="container">
+			<div class="container-fluid" style="margin-left:10px;margin-right:10px">
 				<div class="row">
-					<div class="row-sm-12">
+					<div class="row-sd-12">
 						<div class="cluster_range">
 							<div>
 								<label id="clustCount"></label>
@@ -67,53 +67,81 @@
 					<br />
 					<br />
 				</div>
-				<div class="row">
 				<div class="col-sm-12">
-					<div id="chartdiv">
-						<canvas id="chart"></canvas>
+					<div id="chartdiv" height=1000>
 					</div>
 				</div>
-				<div id="loading" class="spinner"/>
-				</div>
 			</div>
 			
-					<script>
-		function generateNewUrl() {
-			base = "{{ pageurls.hf | safe }}"
-			base += "&scale=" + currScale;
-			return base
+	<script>	
+	var yearData = {{data.year | safe}}
+	var monthData = {{data.month | safe }}
+	
+	function setClusterCount(data) {			
+		document.getElementById("clustCount").innerHTML = "Clusters in total: " + data.length;
+	}
+	
+	function createChart(data) {
+		setClusterCount(data);
+		crd = [];
+		for(var i = 0; i < data.length; i++) {
+			if(i < clusterStart) {
+				continue
+			}
+			if(i >= clusterEnd) {
+				break
+			}
+			crd.push(data[i]);
 		}
-		
-		function generateChart(data) {
-			$("#loading").attr("class", "");
-			Highcharts.chart("chartdiv", {
-				chart: {
-					type: "column",
-					zoomType: "x"
-				},
-				legend: {
-					enabled: false
-				},
-				title: {
-					text: "Hit Frequency"
-				},
-				tooltip: {
-					snap:0,
-					shared: false,
-					crosshairs: false
-				},
-				series: data
-			});
-		}
-		var scale = "year";
-		url = generateNewUrl()
-		$.getJSON(url, function(data) {
-			generateChart(data)});
+	Highcharts.stockChart('chartdiv', {
+		chart: {
+			type:"column",
+			zoomType:"x"
+		},
+		rangeSelector: {
+			selected: 4
+		},
 
-			
+		//xAxis: {
+		//	categories: data.labels
+		//},
+		legend: {
+			enabled: false
+		},
+		plotOptions: {
+			column: {
+				maxPointWidth: 3
+			},
+			series: {
+				stickyTracking: false,
+				events: {
+					click: function(e) {
+						window.location.href="http://evex.utu.fi/fin_news/?f[cluster_id][]=" + this.name;
+					}
+				}
+			}
+		},
+		tooltip: {
+			snap:0,
+			shared: false,
+			crosshairs: false
+		},
+		series: crd
+	});
+	}
+	var clusterStart = 0;
+	var clusterEnd = 100;
+	var currData = yearData;
+	createChart(yearData);
+	$("#dropdown-year").click(function(e) {createChart(yearData); currData=yearData;});				
+	$("#dropdown-month").click(function(e) {createChart(monthData); currData=monthData;});
+	$("#setRangeButton").click(function(e) {
+		clusterStart = $("#cluster-start").val()
+		clusterEnd = $("#cluster-end").val()
+		createChart(currData)
+				});	
 		</script>
-			
 
-			</div>
-		</body>	
-	</html>
+	</body>
+	
+</html>
