@@ -12,7 +12,7 @@ en:
       next: 'Next &raquo;'
 
   blacklight:
-    application_name: 'Blacklight'
+    application_name: 'Finnish news'
 
     header_links:
       login: 'Login'

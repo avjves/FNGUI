@@ -8,13 +8,13 @@
 			<nav class="navbar navbar-inverse">
 				<div class="container-fluid">
 					<div class="navbar-header">
-					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">Finnish news</a>
+					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">{{page_info.application_name}}</a>
 					</div>
 					<ul class="nav navbar-nav">
-						<li><a href="{{pageurls.home}}">Home</a></li>
+						<li><a href="{{page_info.home}}">Home</a></li>
 						<li class="active"><a href="#">Hit Frequency</a></li>
-						<li><a href="{{pageurls.cf}}">Cluster Frequency</a></li>
-						<li><a href="{{pageurls.ci}}">Cluster Info</a></li>
+						<li><a href="{{page_info.cf}}">Cluster Frequency</a></li>
+						<li><a href="{{page_info.ci}}">Cluster Info</a></li>
 					</ul>
 				</div>
 			</nav>
@@ -29,7 +29,7 @@
 							Time scale
 							<span class="caret"></span>
 						</button>
-						<ul class="dropdown-menu">
+						<ul class="dropdown-menu" style="margin-left:75px">
 							<li><a href="#" id="dropdown-year">Year</a></li>
 							<li><a href="#" id="dropdown-month">Month</a></li>
 						</ul>
@@ -49,7 +49,7 @@
 			<div id="loading" class="spinner"/>
 		<script>
 		function generateNewUrl() {
-			base = "{{ pageurls.hf_data | safe }}"
+			base = "{{ page_info.hf_data | safe }}"
 			base += "&scale=" + currScale;
 			return base
 		}
@@ -84,7 +84,6 @@
 		var currScale = "year";
 		url = generateNewUrl()
 		$.getJSON(url, function(data) {
-			alert(data.data)
 			generateChart(data)});
 
 		$("#dropdown-year").click(function(e) {

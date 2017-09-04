@@ -21,3 +21,6 @@
 
 en:
   hello: "Hello world"
+
+blacklight:
+  application_name: 'Finnish News'

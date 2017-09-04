@@ -134,7 +134,8 @@ class TSVHandler(BaseHandler):
 
 class AnalysisHandler(BaseHandler):
 	
-	def __init__(self, analysis_type, arguments, solr_core, solr_port):
+	def __init__(self, analysis_type, arguments, solr_core, solr_port, application_name):
+		self.application_name = application_name
 		self.allowed_arguments, self.allowed_keys = self.read_var()
 		self.months = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun", 7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
 		self.available_pages = [("home", ""), ("hf", "hf"), ("ci", "ci"), ("cf", "cf"), ("cfd", "cfd"), ("test_base", "cfd"), ("info_data", "cid"), ("hf_data", "hfd")]
@@ -148,7 +149,7 @@ class AnalysisHandler(BaseHandler):
 
 	def decide_max_rows(self, analysis_type):
 		if analysis_type in ["cf", "ci"]:
-			return 25000
+			return 50000
 		else:
 			return 50000
 
@@ -224,16 +225,20 @@ class AnalysisHandler(BaseHandler):
 		#	count[key] = value / self.num_of_total_hits
 		return count
 	
-	def generate_pageurls(self):
-		urls = {}
+	def generate_page_urls(self, info):
 		for avail_page_name, avail_page_link in self.available_pages:
 			args = []
 			for arg, val in self.arguments.items():
 				args.append("{}={}".format(arg, val))
-			urls[avail_page_name] = "/fin_news/analysis/{}?{}".format(avail_page_link, "&".join(args))
+			info[avail_page_name] = "/fin_news/analysis/{}?{}".format(avail_page_link, "&".join(args)).replace('"', '%22')
 			
-		urls["cfd"] += "&scale=year&cs=0&ce=100"
-		return urls
+		info["cfd"] += "&scale=year&cs=0&ce=100"
+		
+	def generate_page_info(self):
+		info = {}
+		self.generate_page_urls(info)
+		info["application_name"] = self.application_name
+		return info
 		
 	def get_cluster_ids(self, data):
 		ids = set()
@@ -282,91 +287,7 @@ class AnalysisHandler(BaseHandler):
 			clustid = hit["cluster_id"]
 			clusters[clustid] = clusters.get(clustid, [])
 			clusters[clustid].append(hit)
-		return clusters
-
-
-	##WAT
-	def cluster_frequency(self, data):
-		types = ["year", "month"]
-		clusters = self.hits_to_clusters(data)
-		data = {}
-		for cluster_key, cluster_data in clusters.items():
-			d = self.hit_data_to_freq(cluster_data)
-			data[cluster_key] = d
-		type_labels = self.get_labels(data, types)
-		label_pos = self.make_label_pos_dict(types, type_labels)
-		datadict = {}
-		for type in types:
-			datadict[type] = {}
-			datadict[type]["clusters"] = []
-			datadict[type]["labels"] = []
-			for cluster_key, d in data.items():
-				dataset = {}
-				values = [0] * len(label_pos[type])
-				typelabels = d[type + "_labels"]
-				typedata = d[type + "_data"]
-				for i in range(0, len(typelabels)):
-					if typelabels[i] in label_pos[type]:
-						values[label_pos[type][typelabels[i]]] = typedata[i]
-					else:
-						print(typelabels[i])
-				dataset["data"] = values
-				dataset["label"] = cluster_key
-				datadict[type]["clusters"].append(dataset)
-				
-			datadict[type]["labels"] = type_labels[type]
-		return datadict
-	
-	def sparsify(self, values, labels, labelpos):
-		newv = []
-		for vali, val in enumerate(values):
-			if val > 0:
-				newv.append({"x": labelpos[labels[vali]], "y": val})
-		return newv
-			
-	def cluster_frequency_dev(self, data):
-		types = ["year", "month"]
-		clusters = self.hits_to_clusters(data)
-		data = {}
-		for cluster_key, cluster_data in clusters.items():
-			d = self.hit_data_to_freq(cluster_data)
-			data[cluster_key] = d
-		type_labels = self.get_labels(data, types)
-		label_pos = self.make_label_pos_dict(types, type_labels)
-		datadict = {}
-		for type in types:
-			datadict[type] = {}
-			datadict[type]["clusters"] = []
-			for cluster_key, d in data.items():
-				dataset = {}
-				values = []
-				cluster_labels = d["year_labels"]
-				cluster_data = d["year_data"]
-				for i in range(len(cluster_labels)):
-					x_v = label_pos["year"][cluster_labels[i]]
-					y_v = cluster_data[i]
-					values.append({"x": x_v, "y": y_v})
-				dataset["data"] = values
-				dataset["label"] = cluster_key
-				datadict[type]["clusters"].append(dataset)
-			datadict[type]["labels"] = type_labels[type]
-		
-		return self.chart_format(datadict)
-	
-
-	def chart_format(self, datadict):
-		d = {}
-		for type, data in datadict.items():
-			d[type] = {}
-			d[type]["data"] = []
-			d[type]["labels"] = data["labels"]
-			for cluster in data["clusters"]:	
-				value = {}
-				value["name"] = cluster["label"]
-				value["type"] = "column"
-				value["data"] = cluster["data"]
-				d[type]["data"].append(value)
-		return d
+		return clusters	
 
 	def cluster_unix(self, data):
 		clusters = self.hits_to_clusters(data)
@@ -400,36 +321,5 @@ class AnalysisHandler(BaseHandler):
 				d[type].append(series)
 		return d
 			
-
-	def make_label_pos_dict(self, types, labels):
-		pos = {}
-		for type in types:
-			i = 0
-			pos[type] = {}
-			for label in labels[type]:
-				pos[type][label] = i
-				i += 1
-		return pos
-		
-	def generate_labels(self):
-		labels = {"year": [], "month": []}
-		for i in range(1770, 1911):
-			labels["year"].append(str(i))
-			for j in range(0, 12):
-				labels["month"].append("{}_{}".format(i, j))
-		return labels
-		
-	def get_labels(self, data, types):
-		labels = {}
-		for type in types:
-			labels[type] = []
-			for cluster_key, cluster_data in data.items():
-				cluster_labels = cluster_data[type + "_labels"]
-				labels[type] += cluster_labels
-			labels[type] = natsorted(list(set(labels[type])))
-		return labels
-	
-	
-
 	
 		

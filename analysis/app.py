@@ -6,17 +6,13 @@ from natsort import natsorted
 from collections import OrderedDict
 app = Flask(__name__)
 app.secret_key="utu"
+app_name = "Finnish News"
 core = "finnish-news"
 port = 8983
 
 @app.route("/fin_news/analysis")
 def main():
 	redirect("http://evex.utu.fi/fin_news")
-
-def stream_text(tsv_text):
-	for line in tsv_text:
-		yield(line + "\n")
-
 
 @app.route("/fin_news/analysis/to_tsv")
 def to_tsv():
@@ -28,21 +24,20 @@ def to_tsv():
 	strIO.write(tsv_text.encode("utf-8"))
 	strIO.seek(0)
 	return send_file(strIO, as_attachment=True, attachment_filename=filename)
-	return response
 
 
 @app.route("/fin_news/analysis/")
 def analyze_index():
-	analysis_handler = handlers.AnalysisHandler(analysis_type=None, arguments=request.args, solr_core=core, solr_port=port)
-	pageurls = analysis_handler.generate_pageurls()
-	return render_template("index.html", pageurls=pageurls)
+	analysis_handler = handlers.AnalysisHandler(analysis_type=None, arguments=request.args, solr_core=core, solr_port=port, application_name=app_name)
+	page_info = analysis_handler.generate_page_info()
+	return render_template("index.html", page_info = page_info)
 	
 @app.route("/fin_news/analysis/hfd")
 def analyze_hf_data():
 	arguments, session_inf, session_key = process_arguments(request.args, "hfd")
 	db = open_db()
 	if session_key not in db:
-		analysis_handler = handlers.AnalysisHandler(analysis_type="hf", arguments=arguments, solr_core=core, solr_port=port)
+		analysis_handler = handlers.AnalysisHandler(analysis_type="hf", arguments=arguments, solr_core=core, solr_port=port, application_name=app_name)
 		data = analysis_handler.query_data()
 		datadict = analysis_handler.hit_to_freq(data, unix=False)
 		datadict = analysis_handler.seperate(datadict)
@@ -54,41 +49,45 @@ def analyze_hf_data():
 	
 @app.route("/fin_news/analysis/hf")
 def analyze_hf():
-	analysis_handler = handlers.AnalysisHandler(analysis_type="hf", arguments=request.args, solr_core=core, solr_port=port)
-	pageurls = analysis_handler.generate_pageurls()
-	return render_template("hit_freq.html", pageurls=pageurls)
+	analysis_handler = handlers.AnalysisHandler(analysis_type="hf", arguments=request.args, solr_core=core, solr_port=port, application_name=app_name)
+	page_info = analysis_handler.generate_page_info()
+	return render_template("hit_freq.html", page_info = page_info)
 
 @app.route("/fin_news/analysis/ci")
 def analyze_ci():
-	analysis_handler = handlers.AnalysisHandler(analysis_type="ci", arguments=request.args, solr_core=core, solr_port=port)
-	pageurls = analysis_handler.generate_pageurls()
-	return render_template("clust_info.html", pageurls=pageurls)
+	analysis_handler = handlers.AnalysisHandler(analysis_type="ci", arguments=request.args, solr_core=core, solr_port=port, application_name=app_name)
+	page_info = analysis_handler.generate_page_info()
+	return render_template("clust_info.html", page_info = page_info)
 
 @app.route("/fin_news/analysis/cid")
 def anylze_ci_data():
-	analysis_handler = handlers.AnalysisHandler(analysis_type="ci", arguments=request.args, solr_core=core, solr_port=port)
-	data = analysis_handler.query_data()
-	ids = analysis_handler.get_cluster_ids(data)
-	data = analysis_handler.query_clusters(ids, False)
-	datadict = analysis_handler.cluster_info_to_dictionary(data)
+	arguments, session_inf, session_key = process_arguments(request.args, "cid")
+	db = open_db()
+	if session_key not in db:
+		analysis_handler = handlers.AnalysisHandler(analysis_type="ci", arguments=request.args, solr_core=core, solr_port=port, application_name=app_name)
+		data = analysis_handler.query_data()
+		ids = analysis_handler.get_cluster_ids(data)
+		data = analysis_handler.query_clusters(ids, False)
+		datadict = analysis_handler.cluster_info_to_dictionary(data)
+		db[session_key] = datadict
+	else:
+		datadict = db[session_key]
 	return json.dumps(datadict)
 
 
 @app.route("/fin_news/analysis/cf")
 def analyze_cf():
-	analysis_handler = handlers.AnalysisHandler(analysis_type="cf", arguments=request.args, solr_core=core, solr_port=port)
-	pageurls = analysis_handler.generate_pageurls()
-	return render_template("clust_freq_dev_2.html", pageurls=pageurls)
+	analysis_handler = handlers.AnalysisHandler(analysis_type="cf", arguments=request.args, solr_core=core, solr_port=port, application_name=app_name)
+	page_info = analysis_handler.generate_page_info()
+	return render_template("clust_freq.html", page_info = page_info)
 	#arguments=request.args
 
 @app.route("/fin_news/analysis/cfd")
 def analyze_cf_data():
 	arguments, session_inf, session_key = process_arguments(request.args, "cfd")
-	print(session_key)
 	db = open_db()
 	if session_key not in db:
-	#if session_key not in session:
-		analysis_handler = handlers.AnalysisHandler(analysis_type="test", arguments=arguments, solr_core=core, solr_port=port)
+		analysis_handler = handlers.AnalysisHandler(analysis_type="test", arguments=arguments, solr_core=core, solr_port=port, application_name=app_name)
 		data = analysis_handler.query_data()
 		ids = analysis_handler.get_cluster_ids(data)
 		data = analysis_handler.query_clusters(ids, True)
@@ -97,10 +96,10 @@ def analyze_cf_data():
 	else:
 		datadict = db[session_key]
 	toreturn = datadict[session_inf["scale"]][session_inf["cs"]:session_inf["ce"]]
-	#return json.dumps(toreturn)
 	return json.dumps(toreturn)
 
 def open_db():
+	## TODO, different DB system
 	import shelve
 	db = shelve.open("test.db")
 	return db

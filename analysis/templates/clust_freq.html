@@ -3,25 +3,28 @@
 		<head>
 			<title> Analysing Cluster / Query</title>
 		{% include "scripts.html" %}
+
+		
 		</head>
 		<body>
 			<nav class="navbar navbar-inverse">
 				<div class="container-fluid">
 					<div class="navbar-header">
-					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">Finnish news</a>
+					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">{{page_info.application_name}}</a>
 					</div>
 					<ul class="nav navbar-nav">
-						<li><a href="{{pageurls.home}}">Home</a></li>
-						<li><a href="{{pageurls.hf}}">Hit Frequency</a></li>
-						<li class="active"><a href="{{pageurls.cf}}">Cluster Frequency</a></li>
-						<li><a href="{{pageurls.ci}}">Cluster Info</a></li>
+						<li><a href="{{page_info.home}}">Home</a></li>
+						<li><a href="{{page_info.hf}}">Hit Frequency</a></li>
+						<li class="active"><a href="{{page_info.cf}}">Cluster Frequency</a></li>
+						<li><a href="{{page_info.ci}}">Cluster Info</a></li>
 					</ul>
 				</div>
 			</nav>
 
-			<div class="container">
+			<div class="container-fluid" style="margin-left:10px;margin-right:10px">
+
 				<div class="row">
-					<div class="row-sm-12">
+					<div class="row-sd-12">
 						<div class="cluster_range">
 							<div>
 								<label id="clustCount"></label>
@@ -31,13 +34,13 @@
 								<label>Cluster start:</label>							
 							</div>
 							<div >
-								<input class="form-control" type="number" placeholder=0 id="cluster-start"/>
+								<input class="form-control" type="number" value=0  id="cluster-start"/>
 							</div>
 							<div >
 								<label>Cluster end:</label>							
 							</div>
 							<div >
-								<input class="form-control" type="number" placeholder=100 id="cluster-end"/>
+								<input class="form-control" type="number" value=100 id="cluster-end"/>
 							</div>
 							<div >
 	
@@ -67,26 +70,23 @@
 					<br />
 					<br />
 				</div>
-				<div class="row">
 				<div class="col-sm-12">
-					<div id="chartdiv">
-						<canvas id="chart"></canvas>
+					<div id="chartdiv" height=1000>
 					</div>
 				</div>
 				<div id="loading" class="spinner"/>
-				</div>
 			</div>
-			
-					<script>
+
+	<script>
+		var chart;
 		function generateNewUrl() {
-			base = "{{ pageurls.hf | safe }}"
-			base += "&scale=" + currScale;
+			base = "{{ page_info.test_base | safe }}"
+			base += "&cs=" + clusterStart + "&ce=" + clusterEnd + "&scale=" + currScale;
 			return base
 		}
-		
 		function generateChart(data) {
 			$("#loading").attr("class", "");
-			Highcharts.chart("chartdiv", {
+			chart = Highcharts.stockChart("chartdiv", {
 				chart: {
 					type: "column",
 					zoomType: "x"
@@ -94,8 +94,16 @@
 				legend: {
 					enabled: false
 				},
-				title: {
-					text: "Hit Frequency"
+				plotOptions: {
+
+					series: {
+						stickyTracking: false,
+						events: {
+							click: function(e) {
+								window.location.href="http://evex.utu.fi/fin_news/?f[cluster_id][]=" + this.name;
+							}
+						}
+					}
 				},
 				tooltip: {
 					snap:0,
@@ -105,15 +113,43 @@
 				series: data
 			});
 		}
-		var scale = "year";
-		url = generateNewUrl()
+		var clusterStart = 0;
+		var clusterEnd = 100;
+		var currScale = "year";
+		url = generateNewUrl();
 		$.getJSON(url, function(data) {
 			generateChart(data)});
+		
+		$("#setRangeButton").click(function(e) {
+			clusterStart = $("#cluster-start").val()
+			clusterEnd = $("#cluster-end").val()
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl()
+			$.getJSON(url, function(data) {
+				//chart.series[0].setData(data, true, false, false);
+				//chart.redraw();
+				generateChart(data);
+				});
+		});
+		$("#dropdown-year").click(function(e) {
+			currScale = "year"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
+				generateChart(data);
+			});});				
+		$("#dropdown-month").click(function(e) {
+			currScale = "month"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
 
-			
-		</script>
-			
+				generateChart(data);
+			});});	
+		
+	</script>		
 
-			</div>
-		</body>	
-	</html>
+
+	</body>
+	
+</html>

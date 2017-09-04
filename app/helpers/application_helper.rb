@@ -46,4 +46,9 @@ module ApplicationHelper
 		return "" 
 	end
     end
+	
+    def make_header
+	link = '<a class="nav-brand" href="/fin_news/"><h2>Finnish News</h2></a>'.html_safe
+	return link
+    end
 end
