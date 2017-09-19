@@ -8,13 +8,13 @@ from collections import OrderedDict
 ''' Get data from SOLR, make a HTML BLOB with the data in TSV format '''
 
 class BaseHandler:
-	
+
 	def validate_arguments(self,arguments):
 		args = {}
 		for key, value in arguments.items():
 			if key in self.allowed_arguments:
 				args[key] = value
-		
+
 		args["fl"] = "date, year, cluster_id, span, max_reprint_time, avglength, count"
 		if "fq" in args:
 			args["fq"] = self.fix_fq(args["fq"])
@@ -22,9 +22,9 @@ class BaseHandler:
 		args["hl"] = "false"
 		args["rows"] = self.max_rows ## Setting a max for now, may kill Solr/browser if too high
 		return args
-	
+
 	## broken blacklight format :<
-	
+
 	def fix_fq(self, fq):
 		if "[" not in fq and "]" not in fq: return fq
 		values = json.loads(fq)
@@ -34,7 +34,7 @@ class BaseHandler:
 			value = '"{}"'.format(val.split("}")[1])
 			new_fq.append("{}:{}".format(field, value))
 		return " AND ".join(new_fq)
-		
+
 	#def fix_fq(self, fq):
 	#	if "[" not in fq and "]" not in fq: return fq
 	#	fq = fq[1:-1] ##remove starting and ending brackets
@@ -45,11 +45,11 @@ class BaseHandler:
 	#		value = '"{}"'.format(term.split("}")[1])
 	#		new_fq.append("{}:{}".format(field, value))
 	#	return " AND ".join(new_fq)
-	
+
 	def query_solr(self):
 		result = self.request(self.port, self.core, self.arguments)
 		return self.format_result_to_json(result)
-	
+
 	def request(self, port, core, arguments):
 		print(arguments)
 		return requests.get("http://localhost:{}/solr/{}/select".format(port, core), data=arguments).text
@@ -75,30 +75,68 @@ class TSVHandler(BaseHandler):
 		self.core = solr_core
 		self.port = solr_port
 
+	def read_var(self):
+		allowed_arguments = ["fl", "fq", "sort", "q", "start"]
+		allowed_keys = ["filename", "date", "year", "location", "language", "cluster_id", "title", "url", "text"]
+		return allowed_arguments, allowed_keys
+
+	def validate_arguments(self,arguments):
+		args = {}
+		for key, value in arguments.items():
+			if key in self.allowed_arguments:
+				args[key] = value
+
+		args["fl"] = "count, year, avglength, max_reprint_time, span, cluster_id, start_location, start_language, first_text, filename, date, location, language, title, url, text, ishit"
+		if "fq" in args:
+			args["fq"] = self.fix_fq(args["fq"])
+		args["wt"] = "json" ## Need json!
+		args["hl"] = "false"
+		args["rows"] = self.max_rows ## Setting a max for now, may kill Solr/browser if too high
+		return args
 
 
 	def query_to_tsv(self):
 		data = self.query_solr()
 		data = self.data_to_tsv_html_blob(data)
 		return data
-	
+
 
 	def query_to_tsv_text(self):
 		data = self.query_solr()
 		data = self.data_to_tsv_text(data)
 		return data
-		
+
 	def data_to_tsv_text(self, data):
 		rows = []
-		rows.append("\t".join(self.allowed_keys))
+		not_hits = []
+		curr_keys = set()
+		not_hit_keys = set()
 		for document in data:
-			if document["ishit"] == 0: continue
 			values = []
-			for key in self.allowed_keys:
-				if key not in document: continue
-				values.append(str(document[key]))
-			rows.append("\t".join(values))
-		#return rows
+			keys = set()
+			for key in sorted(list(document.keys())):
+			#	if key not in document: continue
+				if key == "ishit": continue
+				if key == "text":
+					values.append(" ".join(str(document[key]).strip().split()))
+				else:
+					values.append(" ".join(str(document[key]).strip().split()))
+				keys.add(key)
+			if document["ishit"] == 0:
+				not_hits.append("\t".join(values))
+				not_hit_keys = not_hit_keys.union(keys)
+				print(not_hits[-1])
+			else:
+				curr_keys = curr_keys.union(keys)
+				rows.append("\t".join(values))
+
+		if len(rows) == 0:
+			rows.append("\t".join(sorted(list(not_hit_keys))))
+			for not_hit in not_hits:
+				print("ADD: ", not_hit)
+				rows.append(not_hit)
+		else:
+			rows.insert(0, "\t".join(sorted(list(curr_keys))))
 		return "\n".join(rows)
 
 	def get_field_keys(self, documents):
@@ -127,13 +165,13 @@ class TSVHandler(BaseHandler):
 				values.append(str(document[key]))
 				values.append("</td>")
 			values.append("</tr>")
-		
+
 		values.append("</table>")
-		
+
 		return "\n".join(values)
 
 class AnalysisHandler(BaseHandler):
-	
+
 	def __init__(self, analysis_type, arguments, solr_core, solr_port, application_name):
 		self.application_name = application_name
 		self.allowed_arguments, self.allowed_keys = self.read_var()
@@ -156,7 +194,7 @@ class AnalysisHandler(BaseHandler):
 	def query_data(self):
 		data = self.query_solr()
 		return data
-		
+
 	def seperate_dict(self, dictionary):
 		l, d = [], []
 		keys = natsorted(list(dictionary.keys()))
@@ -164,7 +202,7 @@ class AnalysisHandler(BaseHandler):
 			l.append(key)
 			d.append(dictionary[key])
 		return l, d
-	
+
 	def hit_data_to_freq(self, data):
 		year_count, month_count, day_count = {}, {}, {}
 		for value in data:
@@ -180,9 +218,9 @@ class AnalysisHandler(BaseHandler):
 		d["year_labels"], d["year_data"] = self.seperate_dict(year_count)
 		d["month_labels"], d["month_data"] = self.seperate_dict(month_count)
 		d["day_labels"], d["day_data"] = self.seperate_dict(day_count)
-		
+
 		return d
-	
+
 	def hit_to_freq(self, data, unix=True):
 		counts = {}
 		for type in self.types: counts[type] = {}
@@ -197,7 +235,7 @@ class AnalysisHandler(BaseHandler):
 				time_month = year + "_" + month
 			counts["year"][time_year] = counts["year"].get(time_year, 0) + 1
 			counts["month"][time_month] = counts["month"].get(time_month, 0) + 1
-		
+
 		values = {}
 		for type in self.types:
 			type_values = []
@@ -206,7 +244,7 @@ class AnalysisHandler(BaseHandler):
 				type_values.append([key, value])
 			values[type] = type_values
 		return values
-	
+
 	def seperate(self, data):
 		d = {}
 		for type, type_data in data.items():
@@ -224,28 +262,28 @@ class AnalysisHandler(BaseHandler):
 		#for key, value in count.items():
 		#	count[key] = value / self.num_of_total_hits
 		return count
-	
+
 	def generate_page_urls(self, info):
 		for avail_page_name, avail_page_link in self.available_pages:
 			args = []
 			for arg, val in self.arguments.items():
 				args.append("{}={}".format(arg, val))
 			info[avail_page_name] = "/fin_news/analysis/{}?{}".format(avail_page_link, "&".join(args)).replace('"', '%22')
-			
+
 		info["cfd"] += "&scale=year&cs=0&ce=100"
-		
+
 	def generate_page_info(self):
 		info = {}
 		self.generate_page_urls(info)
 		info["application_name"] = self.application_name
 		return info
-		
+
 	def get_cluster_ids(self, data):
 		ids = set()
 		for value in data:
 			ids.add(str(value["cluster_id"]))
 		return list(ids)
-	
+
 	def query_clusters(self, ids, is_hit):
 		arguments = {}
 		data = []
@@ -257,7 +295,7 @@ class AnalysisHandler(BaseHandler):
 			arguments = self.validate_arguments(arguments)
 			data += self.format_result_to_json(self.request(self.port, self.core, arguments))
 		return data
-	
+
 	def cluster_info_to_dictionary(self, data):
 		labels = []
 		lengths = []
@@ -278,16 +316,16 @@ class AnalysisHandler(BaseHandler):
 		d["counts"] = counts
 		d["spans"] = span
 		d["gaps"] = max_reprint_time
-		
+
 		return d
-	
+
 	def hits_to_clusters(self, data):
 		clusters = {}
 		for hit in data:
 			clustid = hit["cluster_id"]
 			clusters[clustid] = clusters.get(clustid, [])
 			clusters[clustid].append(hit)
-		return clusters	
+		return clusters
 
 	def cluster_unix(self, data):
 		clusters = self.hits_to_clusters(data)
@@ -295,7 +333,7 @@ class AnalysisHandler(BaseHandler):
 		for cluster_key, cluster_data in clusters.items():
 			d = self.hit_to_freq(cluster_data)
 			data[cluster_key] = d
-		
+
 		datadict = {}
 		for type in self.types:
 			datadict[type] = []
@@ -309,7 +347,7 @@ class AnalysisHandler(BaseHandler):
 				series.append(d)
 			datadict[type] = series
 		return self.stock_format(datadict)
-	
+
 	def stock_format(self, datadict):
 		d = {}
 		for type, data in datadict.items():
@@ -320,6 +358,3 @@ class AnalysisHandler(BaseHandler):
 				series["data"] = cluster["series"]
 				d[type].append(series)
 		return d
-			
-	
-		
