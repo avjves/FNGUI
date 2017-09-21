@@ -12,7 +12,7 @@ port = 8983
 
 @app.route("/fin_news/analysis")
 def main():
-	redirect("http://evex.utu.fi/fin_news")
+	return redirect("http://evex.utu.fi/fin_news")
 
 @app.route("/fin_news/analysis/to_tsv")
 def to_tsv():
@@ -132,3 +132,8 @@ def validate_arguments(arguments):
 				args[key] = value
 		args["fl"] = "date, year, cluster_id, span, max_reprint_time, avglength, count"
 		return args
+
+
+if __name__ == "__main__":
+	app.run(host="0.0.0.0")
+

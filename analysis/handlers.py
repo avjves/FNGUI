@@ -15,7 +15,7 @@ class BaseHandler:
 			if key in self.allowed_arguments:
 				args[key] = value
 
-		args["fl"] = "date, year, cluster_id, span, max_reprint_time, avglength, count"
+		args["fl"] = "date, year, cluster_id, span, gap, avglength, count"
 		if "fq" in args:
 			args["fq"] = self.fix_fq(args["fq"])
 		args["wt"] = "json" ## Need json!
@@ -86,7 +86,7 @@ class TSVHandler(BaseHandler):
 			if key in self.allowed_arguments:
 				args[key] = value
 
-		args["fl"] = "count, year, avglength, max_reprint_time, span, cluster_id, start_location, start_language, first_text, filename, date, location, language, title, url, text, ishit"
+		args["fl"] = "count, year, avglength, gap, span, cluster_id, start_location, start_language, first_text, filename, date, location, language, title, url, text, ishit"
 		if "fq" in args:
 			args["fq"] = self.fix_fq(args["fq"])
 		args["wt"] = "json" ## Need json!
@@ -305,11 +305,12 @@ class AnalysisHandler(BaseHandler):
 		random.seed(0)
 		random.shuffle(data)
 		for cluster in data:
+			print(data)
 			labels.append(cluster["cluster_id"])
 			lengths.append(int(cluster["avglength"]))
 			counts.append(int(cluster["count"]))
 			span.append(int(cluster["span"]))
-			max_reprint_time.append(int(cluster["max_reprint_time"]))
+			max_reprint_time.append(int(cluster["gap"]))
 		d = {}
 		d["labels"] = labels
 		d["lengths"] = lengths

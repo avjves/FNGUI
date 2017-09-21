@@ -79,16 +79,16 @@ class CatalogController < ApplicationController
     # :index_range can be an array or range of prefixes that will be used to create the navigation (note: It is case sensitive when searching values)
 
     config.add_facet_field 'title', label: 'Title', limit: 10
-    config.add_facet_field 'year', label: "Publication year", :range => {
-	    :maxlength => 4,
-	    :assumed_boundaries => [1775, 1910],
-	    :segments => true
-	    }
-	config.add_facet_field 'occyear', label: "First occurance", :range => {
-	   :maxlength => 4,
-	    :assumed_boundaries => [1775, 1910],
-	    :segments => true
-	    }
+    config.add_facet_field 'year', label: "Publication year", range: true# :range => {
+#	    :maxlength => 4,
+#	    :assumed_boundaries => [1775, 1910],
+#	    :segments => true
+#	    }
+#	config.add_facet_field 'occyear', label: "First occurance", :range => {
+#	   :maxlength => 4,
+#	    :assumed_boundaries => [1775, 1910],
+#	    :segments => true
+#	    }
     config.add_facet_field 'language', label: "Language"
     config.add_facet_field 'location', label: "Location", limit:15
     config.add_facet_field 'start_location', label: "Start location", limit: 15
@@ -109,7 +109,7 @@ class CatalogController < ApplicationController
     config.add_index_field 'count', label: "Count"
     config.add_index_field 'occyear', label: "Occurance year"
     config.add_index_field 'avglength', label: "Average length"
-    config.add_index_field "max_reprint_time", label: "Max gap (yrs)"
+    config.add_index_field "gap", label: "Max gap (yrs)"
     config.add_index_field 'span', label: "Maximum span (yrs)"
     config.add_index_field 'filename', label: "Filename"
     config.add_index_field 'date', label: "Date"
