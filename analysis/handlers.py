@@ -271,6 +271,7 @@ class AnalysisHandler(BaseHandler):
 			info[avail_page_name] = "/fin_news/analysis/{}?{}".format(avail_page_link, "&".join(args)).replace('"', '%22')
 
 		info["cfd"] += "&scale=year&cs=0&ce=100"
+		info["start"] = "http://193.166.25.111/fin_news" #DOMAIN PLX
 
 	def generate_page_info(self):
 		info = {}

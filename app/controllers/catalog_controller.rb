@@ -79,20 +79,22 @@ class CatalogController < ApplicationController
     # :index_range can be an array or range of prefixes that will be used to create the navigation (note: It is case sensitive when searching values)
 
     config.add_facet_field 'title', label: 'Title', limit: 10
+    config.add_facet_field 'doc_label', label: 'Text genre'
     config.add_facet_field 'year', label: "Publication year", range: true# :range => {
 #	    :maxlength => 4,
 #	    :assumed_boundaries => [1775, 1910],
 #	    :segments => true
 #	    }
-#	config.add_facet_field 'occyear', label: "First occurance", :range => {
-#	   :maxlength => 4,
-#	    :assumed_boundaries => [1775, 1910],
-#	    :segments => true
-#	    }
+    config.add_facet_field 'occyear', label: "First occurance", :range => {
+	   :maxlength => 4,
+	    :assumed_boundaries => [1775, 1910],
+	    :segments => true
+	    }
     config.add_facet_field 'language', label: "Language"
     config.add_facet_field 'location', label: "Location", limit:15
     config.add_facet_field 'start_location', label: "Start location", limit: 15
     config.add_facet_field 'start_language', label: "Start language"
+    config.add_facet_field 'start_doc_label', label: "Start text genre"
 
     #config.add_facet_field 'occyear', label: "First occurance"
 
@@ -122,7 +124,7 @@ class CatalogController < ApplicationController
     config.add_index_field 'text', label: "Text", :highlight => true
     config.add_index_field 'start_location', label: "Start location"
     config.add_index_field 'start_language', label: "Start language"
-    config.add_index_field 'first_text', label: "First hit", :helper_method => :first_text_to_none
+    config.add_index_field 'first_text', label: "First text", :helper_method => :first_text_to_none
 
 
 
