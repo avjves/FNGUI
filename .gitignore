@@ -27,6 +27,9 @@ wheels/
 *.egg
 db/
 solr/
+analysis/db/*
+analysis/uuids/*
+analysis/b64/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

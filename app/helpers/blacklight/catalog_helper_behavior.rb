@@ -41,10 +41,26 @@ module Blacklight::CatalogHelperBehavior
       collection.limit_value
     end
 
+    if collection.total_count > 1
+    	unique_clusters = @document_list[0].solr_response["facets"]["unique_clusters"]
+    else
+	unique_clusters = 0
+    end
+
     end_num = if collection.offset_value + end_num <= collection.total_count
       collection.offset_value + end_num
     else
       collection.total_count
+    end
+
+    if unique_clusters == 1
+        total_num = collection.total_count-1
+    else
+        total_num = collection.total_count
+    end
+
+    if end_num > total_num
+        end_num = total_num
     end
       
     case collection.total_count
@@ -58,11 +74,11 @@ module Blacklight::CatalogHelperBehavior
                                                      :num_pages => collection.total_pages,
                                                      :start_num => number_with_delimiter(collection.offset_value + 1),
                                                      :end_num => number_with_delimiter(end_num),
-                                                     :total_num => number_with_delimiter(collection.total_count),
+                                                     :total_num => number_with_delimiter(total_num),
                                                      :count => collection.total_pages,
-						     :unique_clusters => @document_list[0].solr_response["facets"]["unique_clusters"]).html_safe
+						     :unique_clusters => unique_clusters).html_safe
     end
-  end
+  end 
 
   ##
   # Get the offset counter for a document
@@ -76,6 +92,20 @@ module Blacklight::CatalogHelperBehavior
 
     unless render_grouped_response? 
       idx + 1 + offset
+    end
+  end
+
+  def hescape(html, title)
+    if title == "text"
+    #require 'sanitize'
+    #return Sanitize.fragment(html, Sanitize::Config::RELAXED)   
+    	html = html.gsub("<em>", "EMMODISTART").gsub("</em>", "EMMODIEND")
+    	html = html.gsub("<", "").gsub(">", "")
+    #html = Sanitize.document(html, Sanitize::Config::RELAXED)
+    	html = html.gsub("EMMODISTART", "<em>").gsub("EMMODIEND", "</em>")
+    	return html.html_safe
+    else
+        return html
     end
   end
 
