@@ -75,7 +75,7 @@ Rails.application.configure do
   config.log_formatter = ::Logger::Formatter.new
  
   #config.relative_url_root = "/fin_news"
-  config.action_controller.relative_url_root = "/fin_news"
+  config.action_controller.relative_url_root = "/clusters"
 
   # Use a different logger for distributed setups.
   # require 'syslog/logger'

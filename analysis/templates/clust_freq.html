@@ -4,13 +4,13 @@
 			<title> Analysing Cluster / Query</title>
 		{% include "scripts.html" %}
 
-		
+
 		</head>
 		<body>
 			<nav class="navbar navbar-inverse">
 				<div class="container-fluid">
 					<div class="navbar-header">
-					<a class="navbar-brand" href="http://evex.utu.fi/fin_news">{{page_info.application_name}}</a>
+					<a class="navbar-brand" href="http://comhis.fi/clusters">{{page_info.application_name}}</a>
 					</div>
 					<ul class="nav navbar-nav">
 						<li><a href="{{page_info.home}}">Home</a></li>
@@ -31,22 +31,22 @@
 								<br />
 							</div>
 							<div >
-								<label>Cluster start:</label>							
+								<label>Cluster start:</label>
 							</div>
 							<div >
 								<input class="form-control" type="number" value=0  id="cluster-start"/>
 							</div>
 							<div >
-								<label>Cluster end:</label>							
+								<label>Cluster end:</label>
 							</div>
 							<div >
 								<input class="form-control" type="number" value=100 id="cluster-end"/>
 							</div>
 							<div >
-	
+
 							</div>
 						</div>
-					</div>	
+					</div>
 				</div>
 				<br />
 				<div class="row">
@@ -100,7 +100,7 @@
 						stickyTracking: false,
 						events: {
 							click: function(e) {
-								window.location.href="http://evex.utu.fi/fin_news/?f[cluster_id][]=" + this.name;
+								window.location.href="http://comhis.fi/clusters/?f[cluster_id][]=" + this.name;
 							}
 						}
 					}
@@ -113,21 +113,33 @@
 				series: data
 			});
 		}
+
+		function getDataAndGenerate(url) {
+			$.ajax({
+				dataType: "json",
+				url: url,
+				success: function(data) {
+					generateChart(data)
+				},
+				timeout:0
+			});
+		}
+
 		var clusterStart = 0;
 		var clusterEnd = 100;
 		var currScale = "year";
 		url = generateNewUrl();
-		$.getJSON(url, function(data) {
-			generateChart(data)});
-		
+		//$.getJSON(url, function(data) {
+		//	generateChart(data)});
+		getDataAndGenerate(url);
+
 		$("#setRangeButton").click(function(e) {
 			clusterStart = $("#cluster-start").val()
 			clusterEnd = $("#cluster-end").val()
 			$("#loading").attr("class", "spinner");
 			url = generateNewUrl()
+			//get_data_and_generate(url);
 			$.getJSON(url, function(data) {
-				//chart.series[0].setData(data, true, false, false);
-				//chart.redraw();
 				generateChart(data);
 				});
 		});
@@ -137,7 +149,7 @@
 			url = generateNewUrl();
 			$.getJSON(url, function(data) {
 				generateChart(data);
-			});});				
+			});});
 		$("#dropdown-month").click(function(e) {
 			currScale = "month"
 			$("#loading").attr("class", "spinner");
@@ -145,11 +157,11 @@
 			$.getJSON(url, function(data) {
 
 				generateChart(data);
-			});});	
-		
-	</script>		
+			});});
+
+	</script>
 
 
 	</body>
-	
+
 </html>
