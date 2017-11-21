@@ -16,6 +16,7 @@ module ApplicationHelper
         args[:document][args[:field]].gsub!('<', ' ')
     end
 
+    ## Wow, great stuff here
     def generate_links
         if @document_list[0] != nil
             	args = @document_list[0].solr_response["responseHeader"]["params"]
@@ -31,8 +32,6 @@ module ApplicationHelper
     		end
     		args["start"] = (page-1) * per_page
     		args["wt"] = "json"
-        #uri = URI("localhost:5000/clusters/genlink")
-        #res = Net::HTTP.post_form(uri, args)
         require 'securerandom'
         require 'json'
         b64 = args.to_json.hash.to_s
@@ -45,12 +44,6 @@ module ApplicationHelper
         end
         text = "analysis/to_tsv?uuid=" + uuid
     		analyze = "analysis/?uuid=" + uuid
-    		#arguments = ""
-    		#args.each do |key, value|
-    			#arguments.concat("#{key}=#{value}&".gsub('"', "%22").gsub(" ", "%20"))
-    		#end
-    		#text.concat(arguments)
-    		#analyze.concat(arguments)
 
     		tsv = "<a class=\"btn btn-sm btn-text\" id=\"TSVLink\" href=\"#{text}\">Query to TSV</a>".html_safe
         		analyze = "<a class=\"btn btn-sm btn-text\" id=\"AnalyzeLink\" href=\"#{analyze}\">Analyze</a>".html_safe
