@@ -1,7 +1,26 @@
 module ApplicationHelper
 
     def url_to_link args
-        raw('<a href="' + args[:document][args[:field]] + '">' + args[:document][args[:field]] + '</a>')
+        query_words = extract_query_words(args)
+        url = args[:document][args[:field]]
+        for item in query_words
+          url = url + "&term=" + item
+        end
+        return raw('<a target="_blank" href="' + url + '">' + url + '</a>')
+    end
+
+    def extract_query_words args
+        doc_id = args[:document]._source["id"]
+        hl = args[:document].solr_response["highlighting"][doc_id]["text"][0]
+        splits = hl.split("<em>")
+        splits.shift
+        words = []
+        for item in splits
+          w = item.split("</em>")[0]
+          w = w.gsub(/[^0-9a-z]/i, '')
+          words.push(w)
+        end
+        return words
     end
 
     def first_text_to_none args
