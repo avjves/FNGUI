@@ -94,7 +94,6 @@ def analyze_cf_data():
 		data = analysis_handler.query_clusters(ids, True)
 		datadict = analysis_handler.cluster_unix(data)
 		save_to_db(session_key, datadict)
-	print(datadict)
 	toreturn = datadict[request.args.get("scale")][int(request.args.get("cs")):int(request.args.get("ce"))]
 	return json.dumps(toreturn)
 
@@ -114,19 +113,6 @@ def get_from_db(key):
 def process_arguments(uuid, identifier):
 	session_key = identifier + "_" + uuid
 	return session_key
-
-
-def validate_arguments(arguments):
-		allowed_keys = ["filename", "date", "year", "location", "language", "cluster_id", "title", "url", "text"]
-		allowed_arguments = ["fl", "fq", "sort", "q", "start"]
-		args = OrderedDict()
-		for key in natsorted(list(arguments.keys())):
-			value = arguments[key]
-			if key in allowed_arguments:
-				args[key] = value
-		args["fl"] = "date, year, cluster_id, span, max_reprint_time, avglength, count"
-		return args
-
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0")

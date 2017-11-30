@@ -4,20 +4,36 @@ from datetime import datetime
 from natsort import natsorted
 from collections import OrderedDict
 
-
+# -*- coding: utf-8 -*-
 class BaseHandler:
 
+	def __init__(self):
+		self.allowed_keys = ["filename", "date", "year", "location", "language", "cluster_id", "title", "url", "text"]
+		self.allowed_fields = ["date", "year", "cluster_id", "span", "gap", "avglength", "count"]
+		self.allowed_arguments = ["fl", "fq", "sort", "q", "start"]
+
+	def validate_uuid(self, uuid):
+		if "/" in uuid or len(uuid) != 36:
+			return 0
+		try:
+			uuid.encode("ascii")
+		except UnicodeEncodeError:
+			return 0
+		return uuid
+
+
 	def load_arguments(self, uuid):
-		with open("uuids/{}".format(uuid), "r") as json_file:
-			return json.load(json_file)
+		print(uuid)
+		with open("uuids/{}".format(uuid), "r", encoding="utf-8") as json_file:
+			j = json_file.read()
+			return json.loads(j)
 
 	def validate_arguments(self,arguments):
 		args = {}
 		for key, value in arguments.items():
 			if key in self.allowed_arguments:
 				args[key] = value
-
-		args["fl"] = "date, year, cluster_id, span, gap, avglength, count"
+		args["fl"] = ", ".join(self.allowed_fields)
 		if "fq" in args:
 			args["fq"] = self.fix_fq(args["fq"])
 		args["wt"] = "json" ## Need json!
@@ -60,13 +76,7 @@ class BaseHandler:
 
 	def format_result_to_json(self, text):
 		text = json.loads(text)
-	#	print("Docs: {}".format(len(text["response"]["docs"])))
 		return text["response"]["docs"]
-
-	def read_var(self):
-		allowed_arguments = ["fl", "fq", "sort", "q", "start"]
-		allowed_keys = ["filename", "date", "year", "location", "language", "cluster_id", "title", "url", "text"]
-		return allowed_arguments, allowed_keys
 
 ''' Get data from SOLR, make a HTML BLOB with the data in TSV format '''
 
@@ -74,43 +84,22 @@ class BaseHandler:
 class TSVHandler(BaseHandler):
 
 	def __init__(self, uuid, solr_core, solr_port):
+		super().__init__()
 		self.max_rows = 100000
-		self.allowed_arguments, self.allowed_keys = self.read_var()
-		self.uuid = uuid
+		self.uuid = self.validate_uuid(uuid)
 		self.arguments = self.validate_arguments(self.load_arguments(uuid))
 		self.core = solr_core
 		self.port = solr_port
-
-
-	def read_var(self):
-		allowed_arguments = ["fl", "fq", "sort", "q", "start"]
-		allowed_keys = ["filename", "date", "year", "location", "language", "cluster_id", "title", "url", "text"]
-		return allowed_arguments, allowed_keys
 
 	def validate_arguments(self,arguments):
 		args = super(TSVHandler, self).validate_arguments(arguments)
 		args["fl"] = "count, year, avglength, gap, span, cluster_id, start_location, start_language, first_text, filename, date, location, language, title, url, text, ishit"
 		return args
-		#args = {}
-
-		for key, value in arguments.items():
-			if key in self.allowed_arguments:
-				args[key] = value
-
-		args["fl"] = "count, year, avglength, gap, span, cluster_id, start_location, start_language, first_text, filename, date, location, language, title, url, text, ishit"
-		if "fq" in args:
-			args["fq"] = self.fix_fq(args["fq"])
-		args["wt"] = "json" ## Need json!
-		args["hl"] = "false"
-		args["rows"] = self.max_rows ## Setting a max for now, may kill Solr/browser if too high
-		return args
-
 
 	def query_to_tsv(self):
 		data = self.query_solr()
 		data = self.data_to_tsv_html_blob(data)
 		return data
-
 
 	def query_to_tsv_text(self):
 		data = self.query_solr()
@@ -181,15 +170,16 @@ class TSVHandler(BaseHandler):
 class AnalysisHandler(BaseHandler):
 
 	def __init__(self, analysis_type, uuid, solr_core, solr_port, application_name, domain, extra_arguments=None):
+		super().__init__()
 		self.application_name = application_name
 		self.domain = domain
 		self.core = solr_core
 		self.port = solr_port
-		self.allowed_arguments, self.allowed_keys = self.read_var()
+		#self.allowed_arguments, self.allowed_keys = self.read_var()
 		self.months = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun", 7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
 		self.available_pages = [("home", ""), ("hf", "hf"), ("ci", "ci"), ("cf", "cf"), ("cf_data", "cfd"), ("test_base", "cfd"), ("info_data", "cid"), ("hf_data", "hfd")]
 		self.max_rows = self.decide_max_rows(analysis_type)
-		self.uuid = uuid
+		self.uuid = self.validate_uuid(uuid)
 		self.arguments = self.validate_arguments(self.load_arguments(uuid))
 		self.extra_arguments = extra_arguments
 		self.num_of_total_hits = 1 ##38189722
