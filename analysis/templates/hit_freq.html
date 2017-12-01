@@ -3,7 +3,8 @@
 		<head>
 			<title> Analysing Cluster / Query</title>
 			{% include "scripts.html" %}
-
+			<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+			<META HTTP-EQUIV="Expires" CONTENT="-1">
 		</head>
 		<body>
 			<nav class="navbar navbar-inverse">
@@ -48,63 +49,77 @@
 				</div>
 			</div>
 			<div id="loading" class="spinner"/>
-		<script>
-		function generateNewUrl() {
-			base = "{{ page_info.hf_data | safe }}"
-			base += "&scale=" + currScale;
-			return base
-		}
 
-		function generateChart(data) {
-			$("#loading").attr("class", "");
-			Highcharts.chart("chartdiv", {
-				chart: {
-					type: "column",
-					zoomType: "x"
-				},
-				legend: {
-					enabled: false
-				},
-				title: {
-					text: "Hit Frequency"
-				},
-				xAxis: {
-					categories: data.labels
-				},
-				tooltip: {
-					snap:0,
-					shared: false,
-					crosshairs: false
-				},
-				series: [{
-					name: "Hits",
-					data: data.data
-				}]
-			});
-		}
-		var currScale = "year";
-		url = generateNewUrl()
-		$.getJSON(url, function(data) {
-			generateChart(data)});
+					<script>
+					jQuery(window).on(function() {
+						function generateNewUrl() {
+							base = "{{ page_info.hf_data | safe }}"
+							base += "&scale=" + currScale;
+							return base
+						}
 
-		$("#dropdown-year").click(function(e) {
-			currScale = "year"
-			$("#loading").attr("class", "spinner");
-			url = generateNewUrl();
-			$.getJSON(url, function(data) {
-				generateChart(data);
-			});});
+						function generateChart(data) {
+							$("#loading").attr("class", "");
+							Highcharts.chart("chartdiv", {
+								chart: {
+									type: "column",
+									zoomType: "x"
+								},
+								legend: {
+									enabled: false
+								},
+								title: {
+									text: "Hit Frequency"
+								},
+								xAxis: {
+									categories: data.labels
+								},
+								tooltip: {
+									snap:0,
+									shared: false,
+									crosshairs: false
+								},
+								series: [{
+									name: "Hits",
+									data: data.data
+								}]
+							});
+						}
+						var currScale;
+						var url;
+						currScale = "year";
+						url = generateNewUrl()
+						makeButtonFunctions();
 
-		$("#dropdown-month").click(function(e) {
-			currScale = "month"
-			$("#loading").attr("class", "spinner");
-			url = generateNewUrl();
-			$.getJSON(url, function(data) {
+						$.getJSON(url, function(data) {
+							generateChart(data)});
 
-				generateChart(data);
-			});});
-		</script>
+						function makeButtonFunctions() {
+							$("#dropdown-year").click(function(e) {
+								currScale = "year"
+								$("#loading").attr("class", "spinner");
+								url = generateNewUrl();
+								$.getJSON(url, function(data) {
+									generateChart(data);
+									makeButtonFunctions();
+								});});
+
+							$("#dropdown-month").click(function(e) {
+								currScale = "month"
+								$("#loading").attr("class", "spinner");
+								url = generateNewUrl();
+								$.getJSON(url, function(data) {
+									generateChart(data);
+									makeButtonFunctions();
+								});});
+						}
+
+					});
+
+
+					</script>
 
 		</body>
+
 
 	</html>

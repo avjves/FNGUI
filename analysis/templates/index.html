@@ -23,5 +23,16 @@
 				<h1> Analysis page</h1>
 				<h3>On this page there will be different functions to analyze a query / cluster.</h3>
 			</div>
+
+			<script>
+			var url = window.location.href;
+
+			if (url.indexOf('#') == -1) {
+			    url = url + '#';
+			    location = '#';
+			    location.reload(true);
+			}
+
+			</script>
 		</body>
 	</html>
