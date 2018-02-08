@@ -3,17 +3,97 @@
 
 
 </div>
+<div id="getting-started">
+This is a search interface for text reuse clusters from Finnish newspapers and journals from 1771-1910. <br />
+It is possible to search both individual hits and full clusters with different queries. <br />
+The interface also has an analyze tool, where you can generate graphs based on the search query. <br />
+These graphs provide a better image of how the hits are distributed over time as well as other information about clusters.
+<br / >
 
+
+<div id="instructions">
+  <h4 class='section-heading'><a href="#">Search instructions</a></h4>
+  <div id="about-content" class="well" style="display: none">
+    <h5>Here are instructions on how to use the search interface.</h5>
+    <p>
+    The basic principle is to set a word into the search field.
+    This will return all hits that have said word in it.
+    Every hit has its cluster number and by clicking it, you can see the whole cluster of similar hits.
+    <br /> <br />
+    The search engine is based on Solr, so it is capable of a lot more advanced queries as well.
+    You can search without defining a field from where to look. e.g. 'text:kissa' or just 'kissa'.
+    However, some more advanced functions will require the field.
+    Available fields are shown at the bottom of these instructions.
+
+    <br /><br />
+    Below are the basic building blocks of the query, but any query that works on Solr will work.
+    <br />
+    <br />
+    <b>+word</b> - The word 'word' must be in the hit. <br />
+    <b>-word</b> - The word 'word' must NOT be in the hit.
+    <br />
+    <br />
+    These can also be combined together: <br />
+    <b>+first_word -second_word</b> - Must have word 'first_word', but must not have word 'second_word'.<br />
+    <br />
+    Basic boolean operators can also be used:<br />
+    <b>first_word AND second_word</b> - Must have both words. <br />
+    <b>first_word OR second_word</b> - Must have either first_word or second_word. <br />
+    <br />
+    Searching for a phrase works as well: <br />
+    <b> "a full phrase" </b> - Searches for a exact match. <br />
+    <br />
+    Fuzzy search works for both phrase searches and individual word searches. <br />
+    <b> "a full phrase"~ </b> or <b> word~ </b> - Fuzzy matching the search query.
+    <br />
+    <b> "first_word second_word third_word"~20 </b> - All words must be within 20 words of each other. <br />
+    <br / >
+    Wildcards work normally: <br />
+    <b> word* </b> - Search for words that start with 'word' and then any possible endings. <br />
+    <b> word? </b> - Search for word 'word' where there is one extra character at the end. <br />
+    <br />
+    Defining the field to search for: <br />
+    <b> text:first_word </b> - Search for the 'first_word' from 'text' field. <br />
+    <br />
+    Number ranges: <br />
+    <b> count:[50 TO *] </b> Count is equal or bigger than 50. <br />
+    <br />
+    These can all be combined in any way: <br />
+    <b> +text:first_word -text:second_word +title:Aamu* </b> - Texts that have first_word, don't have second_word and the title starts with 'Aamu'. <br />
+    <br />
+    <h4>Available fields when searching for hits: </h4>
+    <b>year</b> - Publication year of the issue where the hit comes from. <br />
+    <b>date</b> - Full date of the issue. <br />
+    <b>filename</b> - Name of the file. <br />
+    <b>language</b> - Language of the issue. <br />
+    <b>cluster_id</b> - ID of the cluster where the hit belongs. <br />
+    <b>location</b> - Printing location of the issue. <br />
+    <b>url</b> - URL to view the original pictures in Kansalliskirjasto's digi archives. <br />
+    <b>title</b> - Title of the issue. <br />
+    <b>text</b> - The actual text of the hit. <br />
+    <b>label</b> - Whether the issue is a newspaper or journal. <br />
+<br /><br />
+    <h4>Available fields when searching for clusters: </h4>
+    <b>start_label</b> - Label of the first hit in the cluster. <br />
+    <b>start_location</b> - Location of the first hit. <br />
+    <b>start_language</b> - Language of the first hit. <br />
+    <b>avglength</b> - Average length of the hits in the cluster. <br />
+    <b>gap</b> - Maximum gap in years where no reprints were detected. <br />
+    <b>occyear</b> - Year of the first hit. <br />
+    <b>cluster_id</b> - ID of the cluster. <br />
+    <b>count</b> - Number of hits in the cluster. <br />
+    <b>span</b> - The span between first and last hit in the cluster. <br />
+  </p>
+  </div>
+</div>
 
 <script>
   $(function() {
-    $('#about a').on('click', function(e) {
+    $('#instructions a').on('click', function(e) {
       e.preventDefault();
 
       if ($('#about-content').html() == "") {
-        $('#about-content').load($(this).attr("href"), function() {
           $('#about-content').show();
-        });
       } else {
         $('#about-content').toggle();
       }

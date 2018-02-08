@@ -85,7 +85,8 @@ class CatalogController < ApplicationController
 #	    :assumed_boundaries => [1775, 1910],
 #	    :segments => true
 #	    }
-    config.add_facet_field 'occyear', label: "First occurance", :range => {
+ #   config.add_facet_field 'start_year', label: "Starting year", :range => {
+    config.add_facet_field 'occyear', label: "Starting year", :range => {
 	   :maxlength => 4,
 	    :assumed_boundaries => [1775, 1910],
 	    :segments => true
@@ -93,6 +94,7 @@ class CatalogController < ApplicationController
     config.add_facet_field 'language', label: "Language"
     config.add_facet_field 'location', label: "Location", limit:15
     config.add_facet_field 'start_location', label: "Starting location", limit: 15
+#    config.add_facet_field 'occyear', label: "Starting location", limit: 15
     config.add_facet_field 'start_language', label: "Starting language"
     config.add_facet_field 'start_label', label: "Starting text style"
 
@@ -109,8 +111,8 @@ class CatalogController < ApplicationController
     #   The ordering of the field names is the order of the display
 
     config.add_index_field 'count', label: "Count"
-    config.add_index_field 'occyear', label: "Occurance year"
     config.add_index_field 'avglength', label: "Average length"
+    #config.add_index_field 'virality_score', label: "Virality score"
     config.add_index_field "gap", label: "Max gap (yrs)"
     config.add_index_field 'span', label: "Maximum span (yrs)"
     config.add_index_field 'filename', label: "Filename"
@@ -123,9 +125,14 @@ class CatalogController < ApplicationController
     config.add_index_field 'title', label: "Title"
     config.add_index_field 'url', label: "URL", :helper_method => :url_to_link
     config.add_index_field 'text', label: "Text", :highlight => true
+#    config.add_index_field 'start_year', label: "Starting year"
+    config.add_index_field 'occyear', label: "Starting year"
     config.add_index_field 'start_location', label: "Starting location"
     config.add_index_field 'start_language', label: "Starting language"
     config.add_index_field 'start_label', label: "Starting style"
+#    config.add_index_field 'locations', label: "Unique locations"
+#    config.add_index_field 'titles', label: "Unique titles"
+#    config.add_index_field 'timespan', label: "Cluster timespan"
     config.add_index_field 'first_text', label: "First text", :helper_method => :first_text_to_none
 
 
@@ -196,5 +203,7 @@ class CatalogController < ApplicationController
     config.add_sort_field 'ishit asc, max_reprint_time asc', label: "Reprint time, ascending"
     config.add_sort_field 'ishit asc, occyear desc', label: "Occurance year, descending"
     config.add_sort_field 'ishit asc, occyear asc', label: "Occurance year, ascending"
+    #config.add_sort_field 'ishit asc, virality_score desc', label: "Virality score, descending"
+    #config.add_sort_field 'ishit asc, virality_score, asc', label: "Virality score, ascending"
   end
 end

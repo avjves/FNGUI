@@ -6,7 +6,7 @@ from natsort import natsorted
 from collections import OrderedDict
 app = Flask(__name__)
 app.secret_key="utu"
-app_name = "Finnish News"
+app_name = "Text Reuse in Finnish Newspapers and Journals, 1771–​1910"
 core = "fn-gui"
 port = 8983
 domain = "http://comhis.fi/clusters"
@@ -72,6 +72,7 @@ def anylze_ci_data():
 		data = analysis_handler.query_data()
 		ids = analysis_handler.get_cluster_ids(data)
 		data = analysis_handler.query_clusters(ids, False)
+		print(data)
 		datadict = analysis_handler.cluster_info_to_dictionary(data)
 		save_to_db(session_key, datadict)
 	return json.dumps(datadict)
@@ -96,6 +97,9 @@ def analyze_cf_data():
 		save_to_db(session_key, datadict)
 	toreturn = datadict[request.args.get("scale")][int(request.args.get("cs")):int(request.args.get("ce"))]
 	return json.dumps(toreturn)
+
+
+
 
 ### ''''database''' ...
 

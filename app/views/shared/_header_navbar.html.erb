@@ -1,19 +1,24 @@
 <div id="header-navbar" class="navbar navbar-inverse navbar-static-top" role="navigation">
-  <div class="<%= container_classes %>">
+  <div class="<%= container_classes %>" style="width:1500px">
     <div class="navbar-header">
-    <button type="button" class="navbar-toggle btn collapsed" data-toggle="collapse" data-target="#user-util-collapse">
-      <span class="sr-only">Toggle navigation</span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
+    <a href="http://comhis.fi/clusters" class="navbar-brand" style="text-indent:50px; width:550px;">
+      Text Reuse in Finnish Newspapers and Journals, 1771–​1910
+    </a>
     </div>
-    <%= link_to application_name, root_path, class: "navbar-brand" %>
+
+
+    <ul class="nav navbar-nav">
+      <li><a href="http://comhis.fi/clusters/info/about">About</a></li>
+      <li><a href="http://comhis.fi/clusters/info/credits">Credits</a></li>
+      <li><a href="http://comhis.fi/clusters/info/cite">How to Cite</a></li>
+    </ul>
+
     <div class="collapse navbar-collapse" id="user-util-collapse">
       <%= render :partial=>'/user_util_links' %>
     </div>
   </div>
 </div>
+
 
 <div id="search-navbar" class="navbar navbar-default navbar-static-top" role="navigation">
   <div class="<%= container_classes %>">

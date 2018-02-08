@@ -1,0 +1,43 @@
+<div class="page-header row">
+  <h2 class="col-md-8 page-heading"><%= t('blacklight.welcome') %></h2>
+
+
+</div>
+
+<div id="getting-started">
+This is a search interface for text reuse clusters from Finnish newspapers and journals from 1771-1910.
+    <h4 class="section-heading">Instructions: </h4>
+	Here are instructions on how to use the search interface. The basic principle is to set a word into the search field. This will return all hits that have said word in it. Every hit has its cluster number and by clicking it, you can see the whole cluster of similar hits. <br />
+        The search engine is based on Solr, so it is capable of a lot more advanced queries as well. Below are the basic building blocks of the query, but any query that works on Solr will work.
+	<br />
+	<br />
+	+word &emsp; The word 'word' must be in the hit. <br />
+	-word &emsp; The word 'word' must NOT be in the hit.
+	<br />
+	These can also be combined together: <br />
+	+first_word -second_word &emsp; Must have word 'first_word', but must not have word 'second_word'.<br />
+	<br />
+	Basic boolean operators can also be used:<br />
+	first_word AND second_word &emsp; Must have both words <br />
+	first_word OR second_word &emsp; Must have either first_word or second_word <br />
+
+<div id="about">
+  <h3 class='section-heading'><a href="/rails/info/properties">About your application&rsquo;s environment</a></h3>
+  <div id="about-content" class="well" style="display: none"></div>
+</div>
+
+<script>
+  $(function() {
+    $('#about a').on('click', function(e) {
+      e.preventDefault();
+
+      if ($('#about-content').html() == "") {
+        $('#about-content').load($(this).attr("href"), function() {
+          $('#about-content').show();
+        });
+      } else {
+        $('#about-content').toggle();
+      }
+    });
+  });
+</script>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>About</title>
+    {% include "scripts.html" %}
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" style="padding-left:50px;padding-right:24px" href="http://comhis.fi/clusters">Text Reuse in Finnish Newspapers and Journals, 1771–​1910</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">About</a></li>
+                <li><a href="/clusters/info/credits">Credits</a></li>
+                <li><a href="/clusters/info/cite">How to Cite</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <p>
+            <br />
+            <b>
+Text Reuse in Finnish Newspapers and Journals, 1771–1910</b>
+            <br />
+
+            <br /> The database Text Reuse in Finnish Newspapers and Journals, 1771–1910 has been created by the consortium Computational History and the Transformation of Public Discourse in Finland, 1640–1910, funded by the Academy of Finland, 2016–2019. ​The consortium is based on the cooperation of four partners, The Faculty of Humanities at the University of Helsinki, the Departments of Cultural History and Future Technologies at the University of Turku and the Centre for Preservation and Digitisation of the National Library of Finland. This brings together relevant complementary expertise on the research subject (eighteenth- and nineteenth-century history), methodology (computational sciences and language technology) and data (the preservation and enhancement of digital resources). The objective of the consortium is to reassess the scope, nature, development, and transnational connections of public discourse in Finland, 1640–1910.
+            <br />
+            <br /> The database Text Reuse in Finnish Newspapers and Journals, 1771–1910 has been built by the researchers of the Department of Future Technologies and the Department of Cultural History, University of Turku. It is an outcome of the WP2 of the consortium, “Viral Texts and Social Networks of Finnish Public Discourse in Newspapers and Journals 1771–1910”. The main idea has been to identify repeated texts, or passages of texts, from a corpus of scanned and OCR-recognized Finnish newspapers and journals. Due to various reasons, like the 'Fraktur' font, the quality is at times fairly unreadable. For this purpose, a software for retrieving and exploring duplicated text passages in low quality OCR historical text corpora was constructed. The system uses NCBI BLAST, a software created for comparing and aligning biological sequences, to find the duplicated passages. The web interface uses Solr as the backend to perform the search queries and a modified version of Blacklight as the frontend.
+            <br />
+            <br /> The original OCR data isn't perfectly segmented into articles, so things such as page breaks, pictures etc. in the original image can cause there to be multiple clusters with similar passages. Therefore the absolute number of found passages doesn't necessarily reflect the actual level of reuse. The passages also have a minimum length constraint of 300 characters, due to that any shorter than this tends to be boilerplate.
+            <br />
+            <br /> Further readings on the method and preliminary results:
+            <br />
+            <br /> Vesanto, Aleksi, Asko Nivala, Heli Rantala, Tapio Salakoski, Hannu Salmi & Filip Ginter, ’Applying BLAST to Text Reuse Detection in Finnish Newspapers and Journals, 1771–1910’, Proceedings of the 21st Nordic Conference of Computational Linguistics. Gothenburg, Sweden, 23–24 May 2017 (Linköping 2017), s. 54–58, <a href="http://www.ep.liu.se/ecp/133/010/ecp17133010.pdf">http://www.ep.liu.se/ecp/133/010/ecp17133010.pdf</a>
+            <br />
+            <br /> Vesanto, Aleksi, Asko Nivala, Tapio Salakoski, Hannu Salmi & Filip Ginter, ’A System for Identifying and Exploring Text Repetition in Large Historical Document Corpora’, Proceedings of the 21st Nordic Conference of Computational Linguistics. Gothenburg, Sweden, 23–24 May 2017 (Linköping 2017), s. 330–333, <a href="http://www.ep.liu.se/ecp/131/049/ecp17131049.pdf">http://www.ep.liu.se/ecp/131/049/ecp17131049.pdf</a>
+            <br />
+
+            <br />
+            <br /> Further information of the COMHIS consortium:
+            <br />
+            <a href="https://www.utu.fi/fi/yksikot/hum/yksikot/kulttuurihistoria/tutkimus/Sivut/comhis.aspx">https://www.utu.fi/fi/yksikot/hum/yksikot/kulttuurihistoria/tutkimus/Sivut/comhis.aspx</a>
+
+        </p>
+
+    </div>
+</body>
+
+</html>

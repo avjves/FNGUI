@@ -66,6 +66,7 @@ class BaseHandler:
 		end_row = int(arguments["rows"])
 		reqs = []
 		for i in range(begin_row, end_row, max_rows_per_query):
+			print("GOT {}".format(i))
 			arguments["start"] = i
 			arguments["rows"] = max_rows_per_query
 			reqs.append(self.format_result_to_json(requests.get("http://localhost:{}/solr/{}/select".format(port, core), data=arguments).text))
@@ -75,6 +76,7 @@ class BaseHandler:
 
 
 	def format_result_to_json(self, text):
+	#	print(text)
 		text = json.loads(text)
 		return text["response"]["docs"]
 
@@ -183,14 +185,14 @@ class AnalysisHandler(BaseHandler):
 		self.arguments = self.validate_arguments(self.load_arguments(uuid))
 		self.extra_arguments = extra_arguments
 		self.num_of_total_hits = 1 ##38189722
-		self.max_boolean_clauses = 1000
+		self.max_boolean_clauses = 500
 		self.types = ["year", "month"]
 
 	def decide_max_rows(self, analysis_type):
 		if analysis_type in ["cf", "ci"]:
-			return 50000
+			return 500000
 		else:
-			return 50000
+			return 500000
 
 	def query_data(self):
 		data = self.query_solr()
@@ -279,15 +281,17 @@ class AnalysisHandler(BaseHandler):
 			ids.add(str(value["cluster_id"]))
 		return list(ids)
 
-	def query_clusters(self, ids, is_hit):
+	def query_clusters(self, ids, ishit):
 		arguments = {}
 		data = []
 		for i in range(0, len(ids), self.max_boolean_clauses):
 			clusterids = " OR ".join(ids[i:i+self.max_boolean_clauses])
-			query = "+ishit:{} AND cluster_id:({})".format(int(is_hit), clusterids)
+			print(len(ids[i:i+self.max_boolean_clauses]))
+			query = "+ishit:{} AND cluster_id:({})".format(int(ishit), clusterids)
 			arguments["q"] = query
 			arguments = self.validate_arguments(arguments)
-			data += self.request(self.port, self.core, arguments)
+			req = self.request(self.port, self.core, arguments)
+			data += req
 		return data
 
 	def cluster_info_to_dictionary(self, data):

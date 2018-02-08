@@ -36,6 +36,7 @@ module ApplicationHelper
     end
 
     ## Wow, great stuff here
+    ## TODO make sure json is in same order to get same hash :)
     def generate_links
         if @document_list[0] != nil
             	args = @document_list[0].solr_response["responseHeader"]["params"]
