@@ -1,0 +1,166 @@
+<!doctype html>
+	<html>
+		<head>
+			<title> Analysing Cluster / Query</title>
+		{% include "scripts.html" %}
+
+
+		</head>
+		<body>
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="http://comhis.fi/clusters" style="padding-left:50px;padding-right:24px">{{page_info.application_name}}</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{page_info.home}}">Home</a></li>
+						<li><a href="{{page_info.hit_freq}}">Hit Frequency</a></li>
+						<li class="active"><a href="{{page_info.cluster_freq}}">Cluster Frequency</a></li>
+						<li><a href="{{page_info.cluster_info}}">Cluster Info</a></li>
+					</ul>
+				</div>
+			</nav>
+
+			<div class="container-fluid" style="margin-left:10px;margin-right:10px">
+
+				<div class="row">
+					<div class="row-sd-12">
+						<div class="cluster_range">
+							<div>
+								<label id="clustCount"></label>
+								<br />
+							</div>
+							<div >
+								<label>Cluster start:</label>
+							</div>
+							<div >
+								<input class="form-control" type="number" value=0  id="cluster-start"/>
+							</div>
+							<div >
+								<label>Cluster end:</label>
+							</div>
+							<div >
+								<input class="form-control" type="number" value=100 id="cluster-end"/>
+							</div>
+							<div >
+
+							</div>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-1">
+						<button class="btn btn-primary" type="button" id="setRangeButton">
+									Set range
+						</button>
+					</div>
+					<div class="col-sm-1">
+						<div class="dropdown">
+							<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="margin-left:5px;">
+								Time scale
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" style="margin-left:5px">
+								<li><a href="#" id="dropdown-year">Year</a></li>
+								<li><a href="#" id="dropdown-month">Month</a></li>
+							</ul>
+						</div>
+					</div>
+					<br />
+					<br />
+				</div>
+				<div class="col-sm-12">
+					<div id="chartdiv" height=1000>
+					</div>
+				</div>
+				<div id="loading" class="spinner"/>
+			</div>
+
+	<script>
+		var chart;
+		function generateNewUrl() {
+			base = "{{ page_info.cluster_freq_data | safe }}"
+			base += "&cs=" + clusterStart + "&ce=" + clusterEnd + "&scale=" + currScale;
+			return base
+		}
+		function generateChart(data) {
+			$("#loading").attr("class", "");
+			chart = Highcharts.stockChart("chartdiv", {
+				chart: {
+					type: "column",
+					zoomType: "x"
+				},
+				legend: {
+					enabled: false
+				},
+				plotOptions: {
+
+					series: {
+						stickyTracking: false,
+						events: {
+							click: function(e) {
+								window.location.href="http://comhis.fi/clusters/?f[cluster_id][]=" + this.name;
+							}
+						}
+					}
+				},
+				tooltip: {
+					snap:0,
+					shared: false,
+					crosshairs: false
+				},
+				series: data
+			});
+		}
+
+		function getDataAndGenerate(url) {
+			$.ajax({
+				dataType: "json",
+				url: url,
+				success: function(data) {
+					generateChart(data)
+				},
+				timeout:0
+			});
+		}
+
+		var clusterStart = 0;
+		var clusterEnd = 100;
+		var currScale = "year";
+		url = generateNewUrl();
+		//$.getJSON(url, function(data) {
+		//	generateChart(data)});
+		getDataAndGenerate(url);
+
+		$("#setRangeButton").click(function(e) {
+			clusterStart = $("#cluster-start").val()
+			clusterEnd = $("#cluster-end").val()
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl()
+			//get_data_and_generate(url);
+			$.getJSON(url, function(data) {
+				generateChart(data);
+				});
+		});
+		$("#dropdown-year").click(function(e) {
+			currScale = "year"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
+				generateChart(data);
+			});});
+		$("#dropdown-month").click(function(e) {
+			currScale = "month"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
+				generateChart(data);
+			});});
+
+	</script>
+
+
+	</body>
+
+</html>

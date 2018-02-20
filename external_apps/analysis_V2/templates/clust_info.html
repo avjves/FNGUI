@@ -1,0 +1,89 @@
+<html>
+	<head>
+		<title> Analysing Cluster / Query</title>
+	{% include 'scripts.html' %}
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="{{page_info.domain}}" style="padding-left:50px;padding-right:24px">{{page_info.application_name}}</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{page_info.home}}">Home</a></li>
+						<li><a href="{{ page_info.hit_freq }}">Hit Frequency</a></li>
+						<li class="active"><a href="#">Cluster Info</a></li>
+					</ul>
+				</div>
+			</nav>
+		<div class="container">
+		</div>
+		<div class="col-sm-12">
+			<div id="chartdiv">
+				<canvas id="chartdiv"></canvas>
+			</div>
+		</div>
+		<div id="loading" class="spinner"/>
+		<script>
+		function generateChart(data) {
+			$("#loading").attr("class", "");
+			Highcharts.chart("chartdiv", {
+				chart: {
+					type: "column",
+					zoomType: "x"
+				},
+				legend: {
+					enabled: true
+				},
+				title: {
+					text: "Cluster info"
+				},
+				plotOptions: {
+
+					series: {
+						stickyTracking: false,
+						point: {
+							events: {
+								click: function() {
+								window.location.href="http://comhis.fi/clusters/?f[cluster_id][]=" + this.category;
+								}
+							}
+						}
+					}
+				},
+				tooltip: {
+					snap:0,
+					shared: false,
+					crosshairs: false
+				},
+				xAxis: {
+					categories: data.labels
+				},
+				series: [{
+						name: "Counts",
+						data: data.counts
+					},
+					{
+						name: "Lengths",
+						data: data.lengths
+					},
+					{
+						name: "Spans",
+						data: data.spans
+					},
+					{
+						name: "Gaps",
+						data: data.gaps
+					}]
+			});
+		}
+		url = "{{ page_info.cluster_info_data | safe}}"
+		$.getJSON(url, function(data) {
+			generateChart(data)});
+
+
+		</script>
+
+
+	</body>
+</html>

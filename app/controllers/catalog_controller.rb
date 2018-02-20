@@ -86,7 +86,7 @@ class CatalogController < ApplicationController
 #	    :segments => true
 #	    }
  #   config.add_facet_field 'start_year', label: "Starting year", :range => {
-    config.add_facet_field 'occyear', label: "Starting year", :range => {
+    config.add_facet_field 'start_year', label: "Starting year", :range => {
 	   :maxlength => 4,
 	    :assumed_boundaries => [1775, 1910],
 	    :segments => true
@@ -112,7 +112,7 @@ class CatalogController < ApplicationController
 
     config.add_index_field 'count', label: "Count"
     config.add_index_field 'avglength', label: "Average length"
-    #config.add_index_field 'virality_score', label: "Virality score"
+    config.add_index_field 'virality_score', label: "Virality score"
     config.add_index_field "gap", label: "Max gap (yrs)"
     config.add_index_field 'span', label: "Maximum span (yrs)"
     config.add_index_field 'filename', label: "Filename"
@@ -130,9 +130,9 @@ class CatalogController < ApplicationController
     config.add_index_field 'start_location', label: "Starting location"
     config.add_index_field 'start_language', label: "Starting language"
     config.add_index_field 'start_label', label: "Starting style"
-#    config.add_index_field 'locations', label: "Unique locations"
-#    config.add_index_field 'titles', label: "Unique titles"
-#    config.add_index_field 'timespan', label: "Cluster timespan"
+    config.add_index_field 'locations', label: "Unique locations"
+    config.add_index_field 'titles', label: "Unique titles"
+    config.add_index_field 'timespan', label: "Timespan in days"
     config.add_index_field 'first_text', label: "First text", :helper_method => :first_text_to_none
 
 
@@ -173,11 +173,11 @@ class CatalogController < ApplicationController
 
 
     config.add_search_field("Hits") do |field|
-        field.solr_parameters = { :"fq" => "ishit:1" }
+        field.solr_parameters = { :"fq" => "is_hit:1" }
     end
 
     config.add_search_field("Clusters") do |field|
-        field.solr_parameters = { :"fq" => "ishit:0", :"fl" => "*" }
+        field.solr_parameters = { :"fq" => "is_hit:0", :"fl" => "*" }
     end
 
    config.add_search_field 'all_fields', label: 'All'
@@ -191,19 +191,19 @@ class CatalogController < ApplicationController
     # whether the sort is ascending or descending (it must be asc or desc
     # except in the relevancy case).
 
-    config.add_sort_field 'ishit asc, date desc', label: "Date, descending"
-    config.add_sort_field 'ishit asc, date asc', label: "Date ascending"
-    config.add_sort_field 'ishit asc, count desc', label: "Count, descending"
-    config.add_sort_field 'ishit asc, count asc', label: "Count, ascending"
-    config.add_sort_field 'ishit asc, avglength desc', label: "Length, descending"
-    config.add_sort_field 'ishit asc, avglength asc', label: "Length, ascending"
-    config.add_sort_field 'ishit asc, span desc', label: "Span, descending"
-    config.add_sort_field 'ishit asc, span asc', label: "Span, ascending"
-    config.add_sort_field 'ishit asc, max_reprint_time desc', label: "Reprint time, descending"
-    config.add_sort_field 'ishit asc, max_reprint_time asc', label: "Reprint time, ascending"
-    config.add_sort_field 'ishit asc, occyear desc', label: "Occurance year, descending"
-    config.add_sort_field 'ishit asc, occyear asc', label: "Occurance year, ascending"
-    #config.add_sort_field 'ishit asc, virality_score desc', label: "Virality score, descending"
-    #config.add_sort_field 'ishit asc, virality_score, asc', label: "Virality score, ascending"
+    config.add_sort_field 'is_hit asc, date desc', label: "Date, descending"
+    config.add_sort_field 'is_hit asc, date asc', label: "Date ascending"
+    config.add_sort_field 'is_hit asc, count desc', label: "Count, descending"
+    config.add_sort_field 'is_hit asc, count asc', label: "Count, ascending"
+    config.add_sort_field 'is_hit asc, avglength desc', label: "Length, descending"
+    config.add_sort_field 'is_hit asc, avglength asc', label: "Length, ascending"
+    config.add_sort_field 'is_hit asc, span desc', label: "Span, descending"
+    config.add_sort_field 'is_hit asc, span asc', label: "Span, ascending"
+    config.add_sort_field 'is_hit asc, max_reprint_time desc', label: "Reprint time, descending"
+    config.add_sort_field 'is_hit asc, max_reprint_time asc', label: "Reprint time, ascending"
+    config.add_sort_field 'is_hit asc, occyear desc', label: "Occurance year, descending"
+    config.add_sort_field 'is_hit asc, occyear asc', label: "Occurance year, ascending"
+    config.add_sort_field 'is_hit asc, virality_score desc', label: "Virality score, descending"
+    config.add_sort_field 'is_hit asc, virality_score asc', label: "Virality score, ascending"
   end
 end

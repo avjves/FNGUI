@@ -1,0 +1,36 @@
+<!doctype html>
+	<html>
+		<head>
+			<title>Visualizing cluster spreading</title>
+		{% include "scripts.html" %}
+
+
+		</head>
+		<body>
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="http://comhis.fi/clusters" style="padding-left:50px;padding-right:24px">{{page_info.application_name}}</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{page_info.home}}">Home</a></li>
+						<li><a href="{{page_info.hf}}">Hit Frequency</a></li>
+						<li><a href="{{page_info.cf}}">Cluster Frequency</a></li>
+						<li><a href="{{page_info.ci}}">Cluster Info</a></li>
+						<li class="active"><a href="{{page_info.vi}}">Cluster Visualization</a></li>
+					</ul>
+				</div>
+			</nav>
+
+			<div class="container-fluid" style="margin-left:10px;margin-right:10px">
+				<div id="loading" class="spinner"/>
+			</div>
+
+	<script>
+	
+	</script>
+
+
+	</body>
+
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+	<html>
+		<head>
+			<title> Analysing Cluster / Query</title>
+			{% include "scripts.html" %}
+			<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+			<META HTTP-EQUIV="Expires" CONTENT="-1">
+		</head>
+		<body>
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="{{page_info.domain}}" style="padding-left:50px;padding-right:24px">{{page_info.application_name}}</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{page_info.home}}">Home</a></li>
+						<li class="active"><a href="#">Hit Frequency</a></li>
+						<li><a href="{{page_info.cluster_info}}">Cluster Info</a></li>
+					</ul>
+				</div>
+			</nav>
+
+			<div class="container">
+
+			</div>
+			<div class="row">
+				<div class="col-sm-3">
+					<div class="dropdown">
+						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="margin-left:75px">
+							Time scale
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" style="margin-left:75px">
+							<li><a href="#" id="dropdown-year">Year</a></li>
+							<li><a href="#" id="dropdown-month">Month</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="col-sm-9">
+
+				</div>
+			</div>
+			<div class="row">
+			<div class="col-sm-12">
+				<div id="chartdiv" style="margin-left:20px;margin-right:20px">
+					<canvas id="chart"></canvas>
+				</div>
+			</div>
+			<div id="loading" class="spinner"/>
+
+
+
+		</body>
+		<script>
+			function generateNewUrl() {
+				base = "{{ page_info.hit_freq_data | safe }}"
+				base += "&scale=" + currScale;
+				return base
+			};
+
+			function generateChart(data) {
+				$("#loading").attr("class", "");
+				Highcharts.chart("chartdiv", {
+					chart: {
+						type: "column",
+						zoomType: "x"
+					},
+					legend: {
+						enabled: false
+					},
+					title: {
+						text: "Hit Frequency"
+					},
+					xAxis: {
+						categories: data.labels
+					},
+					tooltip: {
+						snap:0,
+						shared: false,
+						crosshairs: false
+					},
+					series: [{
+						name: "Hits",
+						data: data.data
+					}]
+				});
+			}
+			var currScale;
+			var url;
+			currScale = "year";
+			url = generateNewUrl();
+
+		$("#dropdown-year").click(function(e) {
+			currScale = "year"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
+				generateChart(data);
+			});});
+
+		$("#dropdown-month").click(function(e) {
+			currScale = "month"
+			$("#loading").attr("class", "spinner");
+			url = generateNewUrl();
+			$.getJSON(url, function(data) {
+				generateChart(data);
+			});});
+
+	//	$.getJSON(url, function(data) {
+	//			generateChart(data)});
+//
+//				});
+
+		function getDataAndGenerate(url) {
+			$.ajax({
+				dataType: "json",
+				url: url,
+				success: function(data) {
+					generateChart(data)
+				},
+				timeout:0
+			});
+		}
+
+		getDataAndGenerate(url);
+
+		</script>
+
+	</html>
