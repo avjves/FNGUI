@@ -54,31 +54,12 @@ module ApplicationHelper
     		args["wt"] = "json"
         require 'securerandom'
         require 'json'
-      #   b64 = args.to_json.hash.to_s
-      #   if File.file?("/Solr/FNGUI/analysis/b64/" + b64) == true
-      #    uuid = File.open("/Solr/FNGUI/analysis/b64/" + b64, "r") { |file| file.read()}
-      #  else
-      #    uuid = SecureRandom.uuid
-      #    File.open("/Solr/FNGUI/analysis/b64/" + b64, "w") { |file| file.write(uuid)}
-      #    File.open("/Solr/FNGUI/analysis/uuids/" + uuid, "w") { |file| file.write(args.to_json)}
-      #   end
-
-        require 'net/http'
         require "cgi"
+				require 'open-uri'
         query_terms = args.to_json
         query_hash = query_terms.hash.to_s
         query_terms = CGI.escape(query_terms.to_s)
-        #url = URI.parse("https://127.0.0.1:12345/get_uuid?query_hash=" + query_hash + "&query_terms=" + query_terms)
-				#url = URI.parse("http://localhost:12345")
-			  #request = Net::HTTP::Get.new(url.to_s)
-				#return url.host, url.port
-        #response = Net::HTTP.start(url.host, url.port) {|http|
-      #    http.request(request)
-    #    }
-				require 'open-uri'
 				response = open("http://127.0.0.1:12345/get_uuid?query_hash=" + query_hash + "&query_terms=" + query_terms).read
-				#return response
-				#return response.body
         uuid = response
 
         text = "analysis/to_tsv?uuid=" + uuid
