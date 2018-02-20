@@ -65,3 +65,4 @@ gem 'devise'
 gem 'devise-guests', '~> 0.5'
 
 gem 'sanitize'
+gem 'nokogiri', '>= 1.8.1'
