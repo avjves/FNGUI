@@ -1,0 +1,203 @@
+<!doctype html>
+	<html>
+		<head>
+			<title> Analysing Cluster Spreading</title>
+		{% include "scripts.html" %}
+
+		<style>
+	   html, body {
+	     height:100%;
+	     margin: 0;
+	     padding: 0;
+	   }
+	   #map {
+	     width: 100%;
+	     height: 400px;
+	   }
+	   </style>
+
+		</head>
+		<body>
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+					<a class="navbar-brand" href="http://comhis.fi/clusters" style="padding-left:50px;padding-right:24px">{{page_info.application_name}}</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<li><a href="{{page_info.home}}">Home</a></li>
+						<li><a href="{{page_info.hit_freq}}">Hit Frequency</a></li>
+						<li><a href="{{page_info.cluster_info}}">Cluster Info</a></li>
+						<li class="active"><a href="{{page_info.cluster_spread}}">Cluster Spread</a></li>
+
+					</ul>
+				</div>
+			</nav>
+
+			<div class="container-fluid" style="margin-left:10px;margin-right:10px">
+
+				<div class="row">
+					<div class="row-sd-12">
+						<div class="cluster_range">
+							<div>
+								<label id="clustCount"></label>
+								<br />
+							</div>
+							<div >
+								<label>Staring year:</label>
+							</div>
+							<div >
+								<input class="form-control" type="number" value=1771  id="starting-year"/>
+							</div>
+							<div >
+								<label>Ending year:</label>
+							</div>
+							<div >
+								<input class="form-control" type="number" value=1775 id="ending-year"/>
+							</div>
+							<div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-1">
+						<button class="btn btn-primary" type="button" id="setRangeButton">
+									Set settings
+						</button>
+					</div>
+					<br />
+					<br />
+				</div>
+				<!-- <div class="col-sm-12"> -->
+					<div id="map">
+					</div>
+				<!-- </div> -->
+				<!-- <div id="loading" class="spinner"/> -->
+			</div>
+
+	<script>
+		function generateNewUrl() {
+			var startingYear = document.getElementById("starting-year").value;
+			var endingYear = document.getElementById("ending-year").value;
+			var language = document.getElementById("language").value;
+			var style = document.getElementById("style").value;
+			base = "{{ page_info.cluster_spread_data | safe }}"
+			base += "&start=" + startingYear + "&end=" + endingYear + "&languages=" + language + "&style=" + style;
+			return base
+		}
+
+		function generateMap() {
+			map = new google.maps.Map(document.getElementById("map"), {
+				zoom: 5,
+				center: {lat:60, lng:25},
+				mapTypeId: "terrain"
+			});
+			var counts = {}
+			var latlng = {}
+			for(key in data) {
+				value = data[key]
+				value = value[style]
+				for(location_tuple in value) { //Locatino = turku_turku
+					var locs = location_tuple.split("_")
+					var start_town = locs[0]
+					var end_town = locs[1]
+					if (start_town in latlng == false) {
+						latlng[start_town] = [value[location_tuple]["lat_start"], value[location_tuple]["lng_start"]]
+					}
+					if (end_town in latlng == false) {
+						latlng[end_town] = [value[location_tuple]["lat_end"], value[location_tuple]["lng_end"]]
+					}
+					if (location_tuple in counts == false) {
+						counts[location_tuple] = 0
+					}
+					counts[location_tuple] = counts[location_tuple] + value[location_tuple]["count"]
+				}
+			}
+			max_min_counts = countMax(counts);
+			drawMaps(counts, latlng, max_min_counts[0], max_min_counts[1]);
+		}
+
+		function countMax(counts) {
+			max_counts = 0
+			min_counts = 1000000000
+			for (location_tuple in counts) {
+				count = counts[location_tuple]
+				if(count > max_counts) {
+					max_counts = count
+				}
+				if(count < min_counts) {
+					min_counts = count
+				}
+			}
+			return [max_counts, min_counts]
+		}
+
+		function drawMaps(counts, latlng, max_counts, min_counts) {
+			var line_symbol = {
+				path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+				scale: 2
+			}
+			for(location_tuple in counts) {
+				count = counts[location_tuple]
+				locs = location_tuple.split("_")
+				start_town = locs[0]
+				end_town = locs[1]
+				start_location = new google.maps.LatLng(latlng[start_town][0], latlng[start_town][1])
+				end_location = new google.maps.LatLng(latlng[end_town][0], latlng[end_town][1])
+				var line = new google.maps.Polyline({
+					path: [start_location, end_location],
+					icons: [{
+						icon: line_symbol,
+						offset: "100%"
+					}],
+					strokeColor: "#FF0000",
+					strokeOpacity: convToNewRange(count, max_counts, min_counts, 1, 0.25),
+					strokeWeight: 1,
+					geodesic: true,
+					map: map
+				});
+			}
+		}
+
+		function convToNewRange(count, old_max, old_min, new_max, new_min) {
+			new_value = ((count - old_min) / (old_max - old_min)) * (new_max - new_min) + new_min
+			return new_value
+		}
+
+		var map;
+		var data;
+		var startingYear = 1771;
+		var endingYear = 1775;
+		var language = "fin,swe"
+		var style = "other_to_other"
+
+
+		var xhr = new XMLHttpRequest();
+		url = generateNewUrl();
+		xhr.open("GET", url, false);
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState == 4) {
+				data = JSON.parse(xhr.response);
+			}
+		};
+		xhr.send(null);
+
+		$("#setRangeButton").click(function(e) {
+			startingYear = $("#starting-year").val()
+			endingYear = $("#ending-end").val()
+			url = generateNewUrl()
+			xhr.open("GET", url, false);
+			xhr.onreadystatechange = function() {
+				if(xhr.readyState == 4) {
+					data = JSON.parse(xhr.response);
+					generateMap();
+				}
+			};
+		});
+
+	</script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACAQdXczE5YOsmvsEBn0hSv0Tl0SM3n7o&callback=generateMap">
+</script>
+	</body>
+</html>
