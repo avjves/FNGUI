@@ -55,35 +55,60 @@
 								<input class="form-control" type="number" value=1775 id="ending-year"/>
 							</div>
 							<div>
+								<label>Threshold:</label>
 							</div>
+							<div>
+								<input class="form-control" type="number" value=0 id="minimum-count"/>
+							</div>
+							<br />
 						</div>
 					</div>
 				</div>
-				<br />
+				<div class="row">
+					<div class="col-sm-2">
+							<div class="dropdown">
+								<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+									Language
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a href="#" id="dropdown-fin">Finnish</a></li>
+									<li><a href="#" id="dropdown-swe">Swedish</a></li>
+									<li><a href="#" id="dropdown-all">All</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="col-sm-2">
+							<div class="dropdown">
+								<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+									Style
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a href="#" id="dropdown-origin">Origin to Others</a></li>
+									<li><a href="#" id="dropdown-others">Others to Others</a><li>
+								</ul>
+						</div>
+					</div>
+				</div>
+				<br / >
 				<div class="row">
 					<div class="col-sm-1">
-						<button class="btn btn-primary" type="button" id="setRangeButton">
-									Set settings
-						</button>
+								<button class="btn btn-primary" type="button" id="setSettingsButton">
+											Set settings
+								</button>
+						</div>
 					</div>
-					<br />
-					<br />
-				</div>
-				<!-- <div class="col-sm-12"> -->
+				<br />
 					<div id="map">
 					</div>
-				<!-- </div> -->
-				<!-- <div id="loading" class="spinner"/> -->
 			</div>
-
+			<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACAQdXczE5YOsmvsEBn0hSv0Tl0SM3n7o&">
+			</script>
 	<script>
 		function generateNewUrl() {
-			var startingYear = document.getElementById("starting-year").value;
-			var endingYear = document.getElementById("ending-year").value;
-			var language = document.getElementById("language").value;
-			var style = document.getElementById("style").value;
 			base = "{{ page_info.cluster_spread_data | safe }}"
-			base += "&start=" + startingYear + "&end=" + endingYear + "&languages=" + language + "&style=" + style;
+			base += "&start=" + startingYear + "&end=" + endingYear + "&languages=" + language + "&style=" + style + "&minimum_count=" + minimumCount;
 			return base
 		}
 
@@ -165,39 +190,58 @@
 			return new_value
 		}
 
+		function getData() {
+			url = generateNewUrl();
+			$.getJSON(url, function(json_data) {
+				data = json_data;
+				generateMap();
+			})
+		}
+
 		var map;
-		var data;
 		var startingYear = 1771;
 		var endingYear = 1775;
-		var language = "fin,swe"
+		var minimumCount = 0;
+		var language = "fin"
 		var style = "other_to_other"
 
+		getData();
 
-		var xhr = new XMLHttpRequest();
-		url = generateNewUrl();
-		xhr.open("GET", url, false);
-		xhr.onreadystatechange = function() {
-			if(xhr.readyState == 4) {
-				data = JSON.parse(xhr.response);
-			}
-		};
-		xhr.send(null);
 
-		$("#setRangeButton").click(function(e) {
-			startingYear = $("#starting-year").val()
-			endingYear = $("#ending-end").val()
-			url = generateNewUrl()
-			xhr.open("GET", url, false);
-			xhr.onreadystatechange = function() {
-				if(xhr.readyState == 4) {
-					data = JSON.parse(xhr.response);
-					generateMap();
-				}
-			};
+		$("#setSettingsButton").click(function(e) {
+			startingYear = $("#starting-year").val();
+			endingYear = $("#ending-year").val();
+			minimumCount = $("#minimum-count").val();
+			getData();
 		});
 
+		$("#dropdown-fin").click(function(e) {
+			language = "fin"
+			getData();
+		});
+
+		$("#dropdown-swe").click(function(e) {
+			language = "swe"
+			getData();
+		});
+
+		$("#dropdown-all").click(function(e) {
+			language = "*"
+			getData();
+		});
+
+		$("#dropdown-origin").click(function(e) {
+			style = "origin_to_others"
+			getData();
+		});
+
+
+		$("#dropdown-others").click(function(e) {
+			style = "other_to_other"
+			getData();
+		});
+
+
 	</script>
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACAQdXczE5YOsmvsEBn0hSv0Tl0SM3n7o&callback=generateMap">
-</script>
 	</body>
 </html>

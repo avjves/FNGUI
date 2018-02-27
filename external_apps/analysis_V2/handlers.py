@@ -117,6 +117,7 @@ class AnalysisHandler:
 		terms = self.uuid_solr.find_terms(self.uuid)
 		if fl:
 			terms["fl"] = fl
+		terms["q"] += " +is_hit:1"
 		batches = self.data_solr.query_solr_in_batches(terms, self.batch_size)
 		hits = self.extract_docs(batches)
 		return hits
@@ -213,7 +214,7 @@ class AnalysisHandler:
 
 	''' Cluster spread methods '''
 
-	def get_cluster_spread_counts(self, start_year, end_year, languages):
+	def get_cluster_spread_counts(self, start_year, end_year, languages, style, minimum_count):
 		arguments = {"q": "+type:cluster_spread +year:[{} TO {}] +language:({})".format(start_year, end_year, " OR ".join(languages)), "rows": 1000}
 		hits = self.analysis_solr.query_solr(arguments)
 		missing_years = self.get_missing_years(hits, start_year, end_year, languages)
@@ -236,9 +237,10 @@ class AnalysisHandler:
 			self.analysis_solr.update_solr(toadd)
 			ready_years.update(new_years)
 			#print(ready_years)
-			return ready_years
+			return self.limit_hits(ready_years, style, minimum_count)
 		else:
-			return self.format_cluster_spread_per_years(hits)
+			hits = self.format_cluster_spread_per_years(hits)
+			return self.limit_hits(hits, style, minimum_count)
 
 	def format_cluster_spread_per_years(self, hits):
 		formatted = {}
@@ -319,6 +321,17 @@ class AnalysisHandler:
 				curr = hit[1]
 
 		return {"year": year, "language": language, "results": json.dumps(spreads)}
+
+
+	def limit_hits(self, hits, style, minimum_count):
+		n = {}
+		for year, data in hits.items():
+			n[year] = {}
+			n[year][style] = {}
+			for key, value in data[style].items():
+				if value["count"] >= minimum_count:
+					n[year][style][key] = value
+		return n
 
 
 	''' Single cluster methods '''

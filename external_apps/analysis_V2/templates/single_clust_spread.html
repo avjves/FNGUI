@@ -35,14 +35,31 @@
 			</nav>
 
 			<div class="container-fluid" style="margin-left:10px;margin-right:10px">
+				<div class="row">
+					<div class="col-sm-2">
+						<div class="dropdown">
+							<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+								Linkage style
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li><a href="#" id="dropdown-origin">Origin to Others</a></li>
+								<li><a href="#" id="dropdown-others">Others to Others</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<br />
 					<div id="map">
 					</div>
 			</div>
+			<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACAQdXczE5YOsmvsEBn0hSv0Tl0SM3n7o&libraries=geometry">
+			</script>
 
 	<script>
 		function generateNewUrl() {
 			base = "{{ page_info.single_cluster_spread_data | safe }}"
-			//base += "&start=" + startingYear + "&end=" + endingYear + "&languages=" + "swe";
+			base += "&style=" + style;
 			return base
 		}
 
@@ -54,7 +71,7 @@
 			});
 			var counts = {}
 			var latlng = {}
-			var curr_data = data[style]
+			var curr_data = data
 			drawLines(curr_data)
 		}
 
@@ -88,69 +105,66 @@
 				  if(curr_i >= locs.length) {
 						clearInterval(interval)
 					}
-					if(curr_line == null) {
-						step = 0;
-						curr_departure = locs[curr_i][0]
-						curr_arrival = locs[curr_i][1]
-						var new_line = new google.maps.Polyline({
-							path: [curr_departure, curr_departure],
-							icons: [{
-								icon: line_symbol,
-								offset: "100%"
-							}],
-							strokeColor: "#FF0000",
-							strokeOpacity: 1,
-							strokeWeight: 1,
-							geodesic: true,
-							map: map
-						});
-						lines.push(new_line)
-						curr_line = new_line
-						step += 1;
-					}
-					else {
-						var curr_pos = google.maps.geometry.spherical.interpolate(curr_departure, curr_arrival, step/numSteps);
-						step += 1;
-						curr_line.setPath([curr_departure, curr_pos])
-						if(step == numSteps) {
-							curr_line = null;
-							curr_i += 1;
-
+					else {
+						if(curr_line == null) {
+							step = 0;
+							curr_departure = locs[curr_i][0]
+							curr_arrival = locs[curr_i][1]
+							var new_line = new google.maps.Polyline({
+								path: [curr_departure, curr_departure],
+								icons: [{
+									icon: line_symbol,
+									offset: "100%"
+								}],
+								strokeColor: "#FF0000",
+								strokeOpacity: 1,
+								strokeWeight: 1,
+								geodesic: true,
+								map: map
+							});
+							lines.push(new_line)
+							curr_line = new_line
+							step += 1;
 						}
+						else {
+							var curr_pos = google.maps.geometry.spherical.interpolate(curr_departure, curr_arrival, step/numSteps);
+							step += 1;
+							curr_line.setPath([curr_departure, curr_pos])
+							if(step == numSteps) {
+								curr_line = null;
+								curr_i += 1;
+
+							}
 					}
+				}
 			}, timePerStep);
 		}
 
+		function getData() {
+			url = generateNewUrl();
+			$.getJSON(url, function(json_data) {
+				data = json_data;
+				generateMap();
+			});
+			}
+
 		var map;
+		var url;
 		var data;
-		var startingYear = 1800;
-		var endingYear = 1810;
 		var style = "origin_to_others"
 
+		getData();
 
-		var xhr = new XMLHttpRequest();
-		url = generateNewUrl();
-		xhr.open("GET", url, false);
-		xhr.onreadystatechange = function() {
-			if(xhr.readyState == 4) {
-				data = JSON.parse(xhr.response);
-			}
-		};
-		xhr.send(null);
-
-		$("#setRangeButton").click(function(e) {
-			clusterStart = $("#cluster-start").val()
-			clusterEnd = $("#cluster-end").val()
-			$("#loading").attr("class", "spinner");
-			url = generateNewUrl()
-			//get_data_and_generate(url);
-			$.getJSON(url, function(data) {
-				generateChart(data);
-				});
+		$("#dropdown-origin").click(function(e) {
+			style = "origin_to_others";
+			getData();
 		});
 
-	</script>
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACAQdXczE5YOsmvsEBn0hSv0Tl0SM3n7o&libraries=geometry&callback=generateMap">
+		$("#dropdown-others").click(function(e) {
+			style = "others_to_others";
+			getData();
+		});
+
 </script>
 	</body>
 </html>

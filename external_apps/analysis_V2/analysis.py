@@ -92,9 +92,9 @@ def analyze_cluster_spread():
 @app.route("/clusters/analysis/cluster_spread_data")
 def analyze_cluster_spread_data():
 	analysis_handler = AnalysisHandler(uuid=request.args.get("uuid"), data_core=data_core, uuid_core=uuid_core, analysis_core=analysis_core, port=port, application_name=app_name, domain=domain)
-	start_year, end_year, languages = int(request.args.get("start")), int(request.args.get("end")), request.args.get("languages")
+	start_year, end_year, languages, style, minimum_count = int(request.args.get("start")), int(request.args.get("end")), request.args.get("languages"), request.args.get("style"), int(request.args.get("minimum_count"))
 	languages = languages.split(",")
-	spreads = analysis_handler.get_cluster_spread_counts(start_year, end_year, languages)
+	spreads = analysis_handler.get_cluster_spread_counts(start_year, end_year, languages, style, minimum_count)
 	print(spreads)
 	return json.dumps(spreads)
 
@@ -108,8 +108,8 @@ def analyze_single_cluster_spread():
 def analyze_single_cluster_spread_data():
 	analysis_handler = AnalysisHandler(uuid=request.args.get("uuid"), data_core=data_core, uuid_core=uuid_core, analysis_core=analysis_core, port=port, application_name=app_name, domain=domain)
 	spreads = analysis_handler.get_single_cluster_data()
-	print(spreads)
-	return json.dumps(spreads)
+	style = request.args.get("style");
+	return json.dumps(spreads[style])
 
 
 if __name__ == "__main__":
