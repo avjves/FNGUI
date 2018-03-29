@@ -12,11 +12,13 @@ class SolrInteractor:
 
 	## Query solr based on arguments
 	def query_solr(self, arguments):
-		self.log(arguments)
 		arguments["wt"] = "json" ## Just making sure the data is always in JSON-format
+		arguments["hl"] = "false"
 		if "rows" not in arguments:
 			arguments["rows"] = self.max_rows
-		response = json.loads(requests.get("http://localhost:{}/solr/{}/select".format(self.port, self.core), data=arguments).text)
+		self.log(arguments)
+		response = requests.get("http://localhost:{}/solr/{}/select".format(self.port, self.core), data=arguments).text
+		response = json.loads(response)
 		return response
 
 	def log(self, message):

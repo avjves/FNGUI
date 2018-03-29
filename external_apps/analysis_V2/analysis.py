@@ -108,8 +108,11 @@ def analyze_single_cluster_spread():
 def analyze_single_cluster_spread_data():
 	analysis_handler = AnalysisHandler(uuid=request.args.get("uuid"), data_core=data_core, uuid_core=uuid_core, analysis_core=analysis_core, port=port, application_name=app_name, domain=domain)
 	spreads = analysis_handler.get_single_cluster_data()
-	style = request.args.get("style");
-	return json.dumps(spreads[style])
+	style = request.args.get("style")
+	if spreads == None:
+		return json.dumps([])
+	else:
+		return json.dumps(spreads[style])
 
 
 if __name__ == "__main__":

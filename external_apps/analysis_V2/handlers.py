@@ -117,7 +117,10 @@ class AnalysisHandler:
 		terms = self.uuid_solr.find_terms(self.uuid)
 		if fl:
 			terms["fl"] = fl
-		terms["q"] += " +is_hit:1"
+		if "cluster_id" in terms["fq"]:
+			terms["q"] += " +is_hit:1"
+		elif "is_hit" not in terms["fq"]:
+			terms["fq"] += " +is_hit:1"
 		batches = self.data_solr.query_solr_in_batches(terms, self.batch_size)
 		hits = self.extract_docs(batches)
 		return hits
@@ -194,8 +197,9 @@ class AnalysisHandler:
 	def get_clusters(self, cluster_ids, fl):
 		clusters = []
 		for i in range(0, len(cluster_ids), self.max_boolean_clauses):
-			query = "+is_hit:0 +cluster_id:({})".format(" OR ".join(cluster_ids[i:i+self.max_boolean_clauses]))
-			arguments = {"q": query, "fl": fl}
+			query = "+cluster_id:({})".format(" OR ".join(cluster_ids[i:i+self.max_boolean_clauses]))
+			fq = "+is_hit:0"
+			arguments = {"q": query, "fl": fl, "fq": fq}
 			response = self.data_solr.query_solr(arguments)
 			clusters.append(response)
 
@@ -295,7 +299,7 @@ class AnalysisHandler:
 		clusters = {}
 		print("HITS", cluster_ids)
 		for cluster_id in cluster_ids:
-			argument = {"q": "+cluster_id:{} +is_hit:1".format(cluster_id)}
+			argument = {"q": "+cluster_id:{}".format(cluster_id), "fq": "+is_hit:1"}
 			batches = self.data_solr.query_solr_in_batches(argument, self.batch_size)
 			hits = []
 			for batch in batches:
@@ -344,13 +348,13 @@ class AnalysisHandler:
 		hits = self.analysis_solr.query_solr(arguments)
 		print(hits)
 		if self.analysis_solr.is_empty(hits):
-			batches = self.data_solr.query_solr_in_batches({"q": "+cluster_id:{} +is_hit:1".format(cluster_id), "fl": "date, location"}, self.batch_size)
+			batches = self.data_solr.query_solr_in_batches({"q": "+cluster_id:{}".format(cluster_id), "fl": "date, location", "fq": "+is_hit:1"}, self.batch_size)
 			print(batches)
 			hits = []
 			for batch in batches:
 				for doc in batch["response"]["docs"]:
 					hits.append([doc["date"], doc["location"]])
-			hits.sort(key=itemgetter(0), reverse=True)
+			hits.sort(key=itemgetter(0))
 			spread = self.get_single_cluster_spread_data(hits)
 			lat_lng_dict = self.get_lat_lng_dict()
 			latlng_spread = {}
@@ -381,15 +385,3 @@ class AnalysisHandler:
 			spread["others_to_others"].append("{}_{}".format(curr[1], hit[1]))
 			curr = hit
 		return spread
-
-	''' Cluster frequency methods '''
-
-	#def get_cluster_frequency_data(self, cluster_start, cluster_end):
-	#    arguments = {"q": "+type:cluster_freq +uuid:{}".format(self.uuid)}
-	#    hits = self.analysis_handler.query_solr(arguments)
-	#    if self.analysis_handler.is_empty(hits):
-
-	#    else:
-	#        cluster_frequencies = json.loads(hits["response"]["docs"][0]["results"])
-
-	#    return cluster_frequencies

@@ -64,6 +64,11 @@
 		}
 
 		function generateMap() {
+			if (data.length == 0) {
+				el = document.getElementById("map");
+				el.innerHTML = "<h2> Select a cluster in the search view first. </h2>";
+				return;
+			}
 			map = new google.maps.Map(document.getElementById("map"), {
 				zoom: 5,
 				center: {lat:60, lng:25},
@@ -87,6 +92,9 @@
 		}
 
 		function beginDrawing(locs) {
+			if (interval != null) {
+				clearInterval(interval)
+			}
 			var lines = []
 			var step = 0;
 			var numSteps = 2*100;
@@ -101,7 +109,7 @@
 				scale: 2
 			}
 
-			var interval = setInterval(function() {
+			interval = setInterval(function() {
 				  if(curr_i >= locs.length) {
 						clearInterval(interval)
 					}
@@ -151,6 +159,7 @@
 		var map;
 		var url;
 		var data;
+		var interval;
 		var style = "origin_to_others"
 
 		getData();
