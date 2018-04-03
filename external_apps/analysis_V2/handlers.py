@@ -112,15 +112,33 @@ class AnalysisHandler:
 
 		return hits
 
+	## Check whether to add "to_add" to fq or q, or to nowhere
+	def add_to_fq(self, fq, to_add):
+		if type(fq) == str:
+			if to_add in fq:
+				return fq
+			else:
+				new_fq = [fq]
+				new_fq.append(to_add)
+				return new_fq
+		else: #list
+			f = False
+			for value in fq:
+				if to_add in value:
+					f = True
+			if not f:
+				fq.append(to_add)
+
+			return fq
+
+
 
 	def get_hits_based_on_uuid(self, fl=None):
 		terms = self.uuid_solr.find_terms(self.uuid)
 		if fl:
 			terms["fl"] = fl
-		if "cluster_id" in terms["fq"]:
-			terms["q"] += " +is_hit:1"
-		elif "is_hit" not in terms["fq"]:
-			terms["fq"] += " +is_hit:1"
+		new_text = self.add_to_fq(terms["fq"], "is_hit:1")
+		terms["fq"] = new_text
 		batches = self.data_solr.query_solr_in_batches(terms, self.batch_size)
 		hits = self.extract_docs(batches)
 		return hits
@@ -297,7 +315,6 @@ class AnalysisHandler:
 
 	def get_hits(self, cluster_ids, fl):
 		clusters = {}
-		print("HITS", cluster_ids)
 		for cluster_id in cluster_ids:
 			argument = {"q": "+cluster_id:{}".format(cluster_id), "fq": "+is_hit:1"}
 			batches = self.data_solr.query_solr_in_batches(argument, self.batch_size)
@@ -346,10 +363,8 @@ class AnalysisHandler:
 		if cluster_id == None: return None
 		arguments = {"q": "+type:single_cluster_spread +cluster_id:{}".format(cluster_id)}
 		hits = self.analysis_solr.query_solr(arguments)
-		print(hits)
 		if self.analysis_solr.is_empty(hits):
 			batches = self.data_solr.query_solr_in_batches({"q": "+cluster_id:{}".format(cluster_id), "fl": "date, location", "fq": "+is_hit:1"}, self.batch_size)
-			print(batches)
 			hits = []
 			for batch in batches:
 				for doc in batch["response"]["docs"]:
