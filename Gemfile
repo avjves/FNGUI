@@ -64,5 +64,8 @@ gem 'rsolr', '~> 1.0'
 gem 'devise'
 gem 'devise-guests', '~> 0.5'
 
-gem 'sanitize'
+gem 'sanitize', '~> 4.6.3'
 gem 'nokogiri', '>= 1.8.1'
+
+gem 'loofah', '~> 2.2.1'
+
