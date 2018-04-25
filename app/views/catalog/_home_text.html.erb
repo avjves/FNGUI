@@ -22,7 +22,7 @@ These graphs provide a better image of how the hits are distributed over time as
     <br /> <br />
     The search engine is based on Solr, so it is capable of a lot more advanced queries as well.
     You can search without defining a field from where to look. e.g. 'text:kissa' or just 'kissa'.
-    However, some more advanced functions will require the field.
+    However, any advanced queries will require the field. If you do not define a field, all possible fields will be looked at to find the search term.
     Available fields are shown at the bottom of these instructions.
 
     <br /><br />
@@ -44,9 +44,9 @@ These graphs provide a better image of how the hits are distributed over time as
     <b> "a full phrase" </b> - Searches for a exact match. <br />
     <br />
     Fuzzy search works for both phrase searches and individual word searches. <br />
-    <b> "a full phrase"~ </b> or <b> word~ </b> - Fuzzy matching the search query.
+    <b> text:"a full phrase"~ </b> or <b> text:word~ </b> - Fuzzy matching the search query.
     <br />
-    <b> "first_word second_word third_word"~20 </b> - All words must be within 20 words of each other. <br />
+    <b> text:"first_word second_word third_word"~20 </b> - All words must be within 20 words of each other. <br />
     <br / >
     Wildcards work normally: <br />
     <b> word* </b> - Search for words that start with 'word' and then any possible endings. <br />
