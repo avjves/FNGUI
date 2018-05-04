@@ -112,7 +112,7 @@ class CatalogController < ApplicationController
 
     config.add_index_field 'count', label: "Count"
     config.add_index_field 'avglength', label: "Average length"
-    config.add_index_field 'virality_score', label: "Virality score"
+    config.add_index_field 'virality_score', label: "Virality score", :helper_method => :round_viral
     config.add_index_field "gap", label: "Max gap (yrs)"
     config.add_index_field 'span', label: "Maximum span (yrs)"
     config.add_index_field 'filename', label: "Filename"

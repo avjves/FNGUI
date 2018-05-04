@@ -9,6 +9,11 @@ module ApplicationHelper
         return raw('<a target="_blank" href="' + url + '">' + url + '</a>')
     end
 
+    def round_viral args
+        viral_score = args[:document][args[:field]]
+	return (viral_score*100).round / 100.0
+    end
+
     def extract_query_words args
         doc_id = args[:document]._source["id"]
         hl = args[:document].solr_response["highlighting"][doc_id]["text"][0]
