@@ -37,13 +37,13 @@ These graphs provide a better image of how the hits are distributed over time as
     <b>+first_word -second_word</b> - Must have word 'first_word', but must not have word 'second_word'.<br />
     <br />
     Basic boolean operators can also be used:<br />
-    <b>first_word AND second_word</b> - Must have both words. <br />
-    <b>first_word OR second_word</b> - Must have either first_word or second_word. <br />
+    <b>text:first_word AND text:second_word</b> - Must have both words. <br />
+    <b>text:first_word OR text:second_word</b> - Must have either first_word or second_word. <br />
     <br />
     Searching for a phrase works as well: <br />
     <b> "a full phrase" </b> - Searches for a exact match. <br />
     <br />
-    Fuzzy search works for both phrase searches and individual word searches. <br />
+    Fuzzy and proximity searches work for both phrases and individual words: <br />
     <b> text:"a full phrase"~ </b> or <b> text:word~ </b> - Fuzzy matching the search query.
     <br />
     <b> text:"first_word second_word third_word"~20 </b> - All words must be within 20 words of each other. <br />
