@@ -34,6 +34,12 @@ Text Reuse in Finnish Newspapers and Journals, 1771–1910</b>
             <br /> The database Text Reuse in Finnish Newspapers and Journals, 1771–1910 has been built by the researchers of the Department of Future Technologies and the Department of Cultural History, University of Turku. It is an outcome of the WP2 of the consortium, “Viral Texts and Social Networks of Finnish Public Discourse in Newspapers and Journals 1771–1910”. The main idea has been to identify repeated texts, or passages of texts, from a corpus of scanned and OCR-recognized Finnish newspapers and journals. Due to various reasons, like the 'Fraktur' font, the quality is at times fairly illegible. For this purpose, software was created for retrieving and exploring duplicated text passages in low quality OCR historical text corpora. The system uses NCBI BLAST, which is software created for comparing and aligning biological sequences, in order to find the duplicated passages. The web interface uses Solr as the back-end to perform the search queries and a modified version of Blacklight as the front-end.
             <br />
             <br /> The original OCR data is not perfectly segmented into articles, so elements such as page breaks, pictures etc. in the original image can cause multiple clusters of similar passages. Therefore, the absolute number of found passages does not necessarily reflect the actual level of reuse. The passages also have a minimum length requirement of 300 characters, as anything shorter often results in boilerplate.
+ 	    <br />
+	    <br />
+	    For each cluster, we have also calculated a virality score. This score takes in account three factors: number of unique locations, number of unique titles and the time it took for the passage to circulate. We also do not consider outliers in the calculation, so that one or a few stray repetitions can not skew the results. Therefore by looking at the dates, we discard any repetitions that apper outside the Tukey fences.
+	    <br />
+	    The formula used: <i>locations*titles*(1/timespan) </i>, normalized to 0-100 range.
+            <br /> 
             <br />
             <br /> Further readings on the method and preliminary results:
             <br />
