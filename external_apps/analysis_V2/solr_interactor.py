@@ -18,7 +18,11 @@ class SolrInteractor:
 			arguments["rows"] = self.max_rows
 		self.log(arguments)
 		response = requests.get("http://localhost:{}/solr/{}/select".format(self.port, self.core), data=arguments).text
-		response = json.loads(response)
+		try:
+			response = json.loads(response)
+		except json.decoder.JSONDecodeError:
+			print(response)
+			raise json.decoder.JSONDecoderError("Couldn't JSONify response.")
 		return response
 
 	def log(self, message):

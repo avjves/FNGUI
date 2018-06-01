@@ -1,12 +1,25 @@
 module ApplicationHelper
 
+	## This currently also fixes the URL if it's a hit from the 1911-1920 set. If this is ever changed, remember to fix this method.
     def url_to_link args
         query_words = extract_query_words(args)
         url = args[:document][args[:field]]
+	url = fix_url_page_nmbr(url, args)
         for item in query_words
           url = url + "&term=" + item
         end
         return raw('<a target="_blank" href="' + url + '">' + url + '</a>')
+    end
+
+    def fix_url_page_nmbr (url, args)
+	fn = args[:document]._source["filename"]
+	if fn.end_with? ".txt"
+	    pagen = fn.split(".txt")[0].split("_")[-1]
+	    url = url.split("?page=")[0] + "?page=" + pagen
+	    return url
+	else
+	    return url
+	end
     end
 
     def round_viral args

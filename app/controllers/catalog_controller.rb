@@ -88,7 +88,7 @@ class CatalogController < ApplicationController
  #   config.add_facet_field 'start_year', label: "Starting year", :range => {
     config.add_facet_field 'start_year', label: "Starting year", :range => {
 	   :maxlength => 4,
-	    :assumed_boundaries => [1775, 1910],
+	    :assumed_boundaries => [1775, 1920],
 	    :segments => true
 	    }
     config.add_facet_field 'language', label: "Language"

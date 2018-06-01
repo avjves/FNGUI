@@ -272,7 +272,7 @@ class AnalysisHandler:
 		return formatted
 
 	def get_missing_years(self, hits, start_year, end_year, languages):
-		min_year, max_year = 1771, 1910
+		min_year, max_year = 1771, 1920
 		present_years = set()
 		missing = set()
 		for hit in hits["response"]["docs"]:

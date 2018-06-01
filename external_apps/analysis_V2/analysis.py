@@ -8,8 +8,8 @@ from handlers import TSVHandler, AnalysisHandler
 
 app = Flask(__name__)
 app.secret_key="utu"
-app_name = "Text Reuse in Finnish Newspapers and Journals, 1771-1910"
-data_core = "fngui_v4"
+app_name = "Text Reuse in Finnish Newspapers and Journals, 1771-1920"
+data_core = "fngui_v7"
 uuid_core = "uuids"
 analysis_core = "analysis_results"
 port = 8983
