@@ -68,5 +68,6 @@ gem 'sanitize', '~> 4.6.3'
 gem 'nokogiri', '>= 1.8.1'
 
 gem 'loofah', '~> 2.2.1'
+gem 'sprockets', '~> 3.7.2'
 
 gem 'rails-html-sanitizer', '~> 1.0.4'
