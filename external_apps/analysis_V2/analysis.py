@@ -1,3 +1,4 @@
+
 import json, gzip, os, datetime, io
 
 from flask import Flask, request, redirect, send_file, render_template
@@ -95,7 +96,6 @@ def analyze_cluster_spread_data():
 	start_year, end_year, languages, style, minimum_count = int(request.args.get("start")), int(request.args.get("end")), request.args.get("languages"), request.args.get("style"), int(request.args.get("minimum_count"))
 	languages = languages.split(",")
 	spreads = analysis_handler.get_cluster_spread_counts(start_year, end_year, languages, style, minimum_count)
-	print(spreads)
 	return json.dumps(spreads)
 
 @app.route("/clusters/analysis/single_cluster_spread")
@@ -116,4 +116,4 @@ def analyze_single_cluster_spread_data():
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=2323)
+	app.run(host="0.0.0.0", port=2323)

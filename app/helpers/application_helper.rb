@@ -1,4 +1,14 @@
+
 module ApplicationHelper
+
+		def not_facet
+				if request.original_url.include? "catalog"
+					return false
+				else
+					return true
+				end
+		end
+
 
 	## This currently also fixes the URL if it's a hit from the 1911-1920 set. If this is ever changed, remember to fix this method.
     def url_to_link args

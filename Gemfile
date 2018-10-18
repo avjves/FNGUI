@@ -71,3 +71,4 @@ gem 'loofah', '~> 2.2.1'
 gem 'sprockets', '~> 3.7.2'
 
 gem 'rails-html-sanitizer', '~> 1.0.4'
+gem 'rake', '~> 12.3', '>= 12.3.1'
