@@ -33,8 +33,8 @@ class SolrInteractor:
 	def query_solr_in_batches(self, arguments, batch_size):
 		arguments["rows"]= batch_size
 		current_start = 0
-		if "start" in arguments:
-			current_start = arguments["start"]
+		# if "start" in arguments:
+		# 	current_start = arguments["start"]
 		batches = []
 		while True:
 			self.log("Batch start: {}".format(current_start))
