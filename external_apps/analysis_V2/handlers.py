@@ -15,7 +15,7 @@ class TSVHandler:
 		self.batch_size = 1000 #How many rows to return per batch from Solr
 		self.fields = "count, year, avglength, gap, span, cluster_id, start_location, start_language, first_text, filename, date, location, language, title, url, text, is_hit"
 		self.cluster_only_fields = "count,year,avglength,gap,span,cluster_id,start_location,start_language,first_text"
-		self.hit_only_fields = "filename,date,location,language,title,url,text"
+		self.hit_only_fields = "filename,date,location,language,title,url,cluster_id,text"
 
 		## Query solr for data and make a TSV response
 	def make_tsv_response(self):
@@ -44,12 +44,12 @@ class TSVHandler:
 				if hit["is_hit"] == 1:
 					continue
 				for col in columns:
-					values.append(hit[col].replace("\t", " ")) ## Make sure no tab char in any field
+					values.append(str(hit[col]).replace("\t", " ").replace('"', ' ')) ## Make sure no tab char in any field
 			else:
 				if hit["is_hit"] == 0:
 					continue
 				for col in columns:
-					values.append(hit[col].replace("\t", " ")) ## Same here
+					values.append(str(hit[col]).replace("\t", " ").replace('"', ' ')) ## Same here
 
 			tsv.append("\t".join(values))
 
